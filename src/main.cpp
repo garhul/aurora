@@ -6,18 +6,18 @@
 #include <FS.h>
 #include <EEPROM.h>
 #include <NeoPixelBus.h>
-#include <Rainbow.h>
+// #include <Rainbow.h>
 #include <WiFiUdp.h>
 #include <Hash.h>
 #include <MQTT.h>
 
-Rainbow rb;
+// Rainbow rb;
 ESP8266WebServer server(80);
 MQTTClient client;
 WiFiClient net;
 
 boolean clearEEPROM() {   
-  for (int i = 0; i < EEPROM.length; ++i) {
+  for (int i = 0; i < EEPROM_SIZE; ++i) {
     EEPROM.write(i, 1);
   }
 
@@ -31,7 +31,7 @@ void setupAP() {
     return;
   }
   
-  if (!clearEEPROM) {
+  if (!clearEEPROM()) {
     server.send(500, "application/json", "{message:'error clearing credentials'}");
     return;
   };
@@ -58,6 +58,7 @@ void setupAP() {
 
   if (EEPROM.commit()) {      
     server.send(200, "application/json", "{message:'settings stored'}");
+    delay(2000);
     ESP.restart();
   } else {
     server.send(500, "application/json", "{message:'error storing credentials'}");
@@ -131,20 +132,34 @@ bool beginST() {
   return true;
 }
 
+void mqttMessage(String &topic, String &payload) {
+  Serial.println("rcv: " + topic + " - " + payload);
+}
+
 void initMQTT() {
-  String broker = '';
-  String topic = '';
+  char* broker = "";
+  char* topic = "";
+  
+  for (int i = 64; i < 96; ++i) {
+    topic += char(EEPROM.read(i));
+  }
+
   for (int i = 100; i < 120; ++i) {
     broker += char(EEPROM.read(i));
   }
   
   client.begin(broker, net);
-
+  
   Serial.print("\nConnecting to broker");
-  while (!client.connect(topic, "", "")) {
-    Serial.print(".");
-    delay(800);
-  }
+  Serial.println(broker);
+
+  // while (!client.connect(topic, "", "")) {
+  //   Serial.print(".");
+  //   delay(800);
+  // }
+
+  client.subscribe(topic);
+  client.onMessage(mqttMessage);
 }
 
 void setup ( void ) {
@@ -159,20 +174,18 @@ void setup ( void ) {
     beginAP();
   } else {
     initMQTT();
-    rb.start();
+    // rb.start();
   } 
 
   // Set up endpoints for network configuration
   server.on("/setup", HTTP_POST, setupAP);
   server.on("/clear", HTTP_POST, clearCredentials); //endpoint for clearing ssid / pwd
   server.begin();
-
-  //initialize device controller
-  
 }
 
 void loop ( void ) {
   yield();
+  client.loop();
   server.handleClient();
-  rb.service();
+  // rb.loop();
 }
