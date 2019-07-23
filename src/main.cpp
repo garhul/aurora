@@ -6,15 +6,33 @@
 #include <FS.h>
 #include <EEPROM.h>
 #include <NeoPixelBus.h>
-// #include <Rainbow.h>
+#include <Strip.h>
 #include <WiFiUdp.h>
 #include <Hash.h>
 #include <MQTT.h>
 
-// Rainbow rb;
+Strip strip;
 ESP8266WebServer server(80);
 MQTTClient client;
 WiFiClient net;
+
+// struct {
+//   char ssid[32] = "";
+//   char pass[32] = "";
+//   char topic[32] = "";
+//   char broker[32] = "";
+// } t_settings;
+
+// typedef struct t_settings settings;
+
+struct Settings {
+  char ssid[32];
+  char pass[32];
+  char topic[32];
+  char broker[32];
+};
+
+Settings settings = {0};
 
 boolean clearEEPROM() {   
   for (int i = 0; i < EEPROM_SIZE; ++i) {
@@ -26,7 +44,7 @@ boolean clearEEPROM() {
 
 void setupAP() {
   //check post params exist
-  if(!server.hasArg("pwd") || !server.hasArg("ssid")  || !server.hasArg("topic")) {
+  if(!server.hasArg("pass") || !server.hasArg("ssid")  || !server.hasArg("topic") || !server.hasArg("broker")) {
     server.send(400, "application/json", "{message:'Invalid params'}");
     return;
   }
@@ -36,25 +54,38 @@ void setupAP() {
     return;
   };
 
-  // ssid is stored in addr between 0 and 32 
-  for (int i = 0; i < server.arg("ssid").length(); ++i) {
-    EEPROM.write(i, server.arg("ssid")[i]);
-  }
-  
-  // pwd is stored in addr between 33 and 64 
-  for (int i = 0; i < server.arg("pwd").length(); ++i) {
-    EEPROM.write(32+i, server.arg("pwd")[i]);
-  }
-  
-  // topic starts at position 64
-  for (int i = 0; i < server.arg("topic").length(); ++i) {
-    EEPROM.write(64+i, server.arg("topic")[i]);
-  }
+  server.arg("ssid").toCharArray(settings.ssid, 32);
+  server.arg("pass").toCharArray(settings.pass, 32);
+  server.arg("topic").toCharArray(settings.topic, 32);
+  server.arg("broker").toCharArray(settings.broker, 32);
 
-  // broker starts at position 100
-  for (int i = 0; i < server.arg("broker").length(); ++i) {
-    EEPROM.write(100+i, server.arg("broker")[i]);
-  }
+  EEPROM.put(0x00, settings);
+
+  // settings->ssid = server.arg("ssid");
+  // settings.pass = server.arg("pass");
+  // settings.ssid = server.arg("topic");
+  // settings.ssid = server.arg("broker");
+
+
+  // // ssid is stored in addr between 0 and 32 
+  // for (int i = 0; i < server.arg("ssid").length(); ++i) {
+  //   EEPROM.write(i, server.arg("ssid")[i]);
+  // }
+  
+  // // pwd is stored in addr between 33 and 64 
+  // for (int i = 0; i < server.arg("pwd").length(); ++i) {
+  //   EEPROM.write(32+i, server.arg("pwd")[i]);
+  // }
+  
+  // // topic starts at position 64
+  // for (int i = 0; i < server.arg("topic").length(); ++i) {
+  //   EEPROM.write(64+i, server.arg("topic")[i]);
+  // }
+
+  // // broker starts at position 100
+  // for (int i = 0; i < server.arg("broker").length(); ++i) {
+  //   EEPROM.write(100+i, server.arg("broker")[i]);
+  // }
 
   if (EEPROM.commit()) {      
     server.send(200, "application/json", "{message:'settings stored'}");
@@ -96,17 +127,19 @@ bool beginST() {
   WiFi.mode(WIFI_STA);
   int attempts = 0;
 
-  String pwd = ""; //ST_PWD;
-  String ssid = ""; //ST_SSID;  
+  EEPROM.get(0x00, settings);
 
-  // try to load eeprom data for SSID and pwd
-  for (int i = 0; i < 32; ++i) {
-    ssid += char(EEPROM.read(i));
-  }
+  String pwd = settings.pass;
+  String ssid = settings.ssid;
 
-  for (int i = 32; i < 64; ++i) {
-    pwd += char(EEPROM.read(i));
-  }
+  // // try to load eeprom data for SSID and pwd
+  // for (int i = 0; i < 32; ++i) {
+  //   ssid += char(EEPROM.read(i));
+  // }
+
+  // for (int i = 32; i < 64; ++i) {
+  //   pwd += char(EEPROM.read(i));
+  // }
 
   // disconnect from any previously connected network (open networks?) 
   if (WiFi.status() == WL_CONNECTED) {    
@@ -134,31 +167,24 @@ bool beginST() {
 
 void mqttMessage(String &topic, String &payload) {
   Serial.println("rcv: " + topic + " - " + payload);
+  strip.cmd(payload);
 }
 
 void initMQTT() {
-  char* broker = "";
-  char* topic = "";
-  
-  for (int i = 64; i < 96; ++i) {
-    topic += char(EEPROM.read(i));
-  }
+  client.begin(settings.broker, net);
 
-  for (int i = 100; i < 120; ++i) {
-    broker += char(EEPROM.read(i));
-  }
-  
-  client.begin(broker, net);
-  
   Serial.print("\nConnecting to broker");
-  Serial.println(broker);
+  Serial.println(settings.broker);
 
-  // while (!client.connect(topic, "", "")) {
-  //   Serial.print(".");
-  //   delay(800);
-  // }
+  while (!client.connect("aurora", "t", "t")) {
+    Serial.print(".");
+    delay(50);
+  }
 
-  client.subscribe(topic);
+  Serial.print("Subscripto al topico: ");
+  Serial.println(settings.topic);
+
+  client.subscribe(settings.topic);
   client.onMessage(mqttMessage);
 }
 
@@ -174,7 +200,6 @@ void setup ( void ) {
     beginAP();
   } else {
     initMQTT();
-    // rb.start();
   } 
 
   // Set up endpoints for network configuration
@@ -187,5 +212,5 @@ void loop ( void ) {
   yield();
   client.loop();
   server.handleClient();
-  // rb.loop();
+  strip.loop();
 }

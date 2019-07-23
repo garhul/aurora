@@ -12,6 +12,16 @@ struct leds {
   byte br;
 };
 
+enum FX {
+  NONE,
+  RAINBOW,
+  WAVEBOW,
+  AURORA,
+  OPPOSITES,
+  OPPOSITES_SEGMENTED,
+  COUNT,
+};
+
 
 class Strip {
   public:
@@ -26,23 +36,21 @@ class Strip {
     void setMaxBrightness(byte b);
     void resetFrameCount();
     void nextFrame(char index); //shows next frame if in animation mode
+    void cmd(String cmd);
+    void loop();
 
   private:
     byte _max_bright;
     int frame_index;
+    char spd;
+    char eff_num;
 
     leds pixels[STRIP_SIZE];
     byte oldh_list[STRIP_SIZE];
-
-    void _randomize();
-    void _aurora();
-    void _aurora2();
-    void _eff_0();
-    void _eff_1();
-    void _eff_2();
-    void _eff_4();
-    void _eff_3();
-    void _eff_5();
-    void _eff_6();
-    void _eff_7();
+    void randomize();
+    void fx_aurora();
+    void fx_rainbow();
+    void fx_wavebow();
+    void fx_opposites();
+    void fx_opp_seg();
 };
