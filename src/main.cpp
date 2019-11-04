@@ -166,8 +166,11 @@ bool beginST() {
 }
 
 void mqttMessage(String &topic, String &payload) {
-  Serial.println("rcv: " + topic + " - " + payload);
-  strip.cmd(payload);
+  Serial.println("rcv: " + topic + " - " + payload);   
+  char* sv;
+  char *tp = const_cast<char*>(topic.c_str());  
+  strtok_r(tp, "/", &sv);
+  strip.cmd(strtok_r(sv, "/", &sv), payload);
 }
 
 void initMQTT() {
@@ -176,19 +179,30 @@ void initMQTT() {
   Serial.print("\nConnecting to broker");
   Serial.println(settings.broker);
 
-  while (!client.connect("aurora", "t", "t")) {
+  int intervals = 0;
+  while (!client.connect("aurora", "t", "t") && intervals < 100) {
     Serial.print(".");
     delay(50);
+    intervals++;
   }
 
-  Serial.print("Subscripto al topico: ");
-  Serial.println(settings.topic);
+  if (client.connected()) {    
+    Serial.print("Subscripto al topico: ");
+    Serial.println(settings.topic);
 
-  client.subscribe(settings.topic);
-  client.onMessage(mqttMessage);
+    client.subscribe(settings.topic);
+    client.onMessage(mqttMessage);
+  } else {
+    Serial.println("unable to connect");
+  }
+
+  
 }
 
 void setup ( void ) {
+  pinMode(LED_BUILTIN, OUTPUT);
+  digitalWrite(LED_BUILTIN, HIGH);
+  
   Serial.begin(115200);
   digitalWrite(2, HIGH); // turn of device led
   EEPROM.begin(EEPROM_SIZE);
