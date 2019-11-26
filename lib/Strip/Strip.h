@@ -1,6 +1,6 @@
 #include <NeoPixelBus.h>
 
-#define STRIP_SIZE 30
+#define STRIP_SIZE 50
 #define TEST_DELAY 15
 
 #define REL_UNIT_BYTE 0.0039f

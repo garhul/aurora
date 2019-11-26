@@ -62,8 +62,14 @@ void Strip::cmd(String cmd, String payload) {
   else if (cmd == CMD_L_BR) this->_l_bright = payload.toInt();
   else if (cmd == CMD_L_HU) this->_l_hue = payload.toInt();
   else if (cmd == CMD_R_HU) this->_r_hue = payload.toInt();
-  else if (cmd == CMD_L_TOGGLE) this->_l_on = (this->_l_on) ? 0 : 1;
-  else if (cmd == CMD_R_TOGGLE) this->_r_on = (this->_r_on) ? 0 : 1;
+  else if (cmd == CMD_L_TOGGLE) {
+    this->playing = 0;
+    this->_l_on = (this->_l_on) ? 0 : 1;
+  }
+  else if (cmd == CMD_R_TOGGLE) {
+    this->playing = 0;
+    this->_r_on = (this->_r_on) ? 0 : 1;
+  }
   else if (cmd == CMD_PAUSE) this->playing = 0;
   else if (cmd == CMD_PLAY) this->playing = 1;
   else if (cmd == CMD_FX) {
@@ -76,12 +82,12 @@ void Strip::cmd(String cmd, String payload) {
       this->spd = spd_safe;
     }
   }
+
   else if (cmd == CMD_SPD) this->spd = payload.toInt();
 
-  if (this->playing == 0) {
-    if (this->_r_on) { this->setHSBRange(this->_r_hue, 0, byte-> )}
-  }
-
+  // if (this->playing == 0) {
+  //   if (this->_r_on) { this->setHSBRange(this->_r_hue, 0, byte-> )}
+  // }
 }
 
 //cycle each led to test connections
