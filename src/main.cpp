@@ -16,15 +16,6 @@ ESP8266WebServer server(80);
 MQTTClient client;
 WiFiClient net;
 
-// struct {
-//   char ssid[32] = "";
-//   char pass[32] = "";
-//   char topic[32] = "";
-//   char broker[32] = "";
-// } t_settings;
-
-// typedef struct t_settings settings;
-
 struct Settings {
   char ssid[32];
   char pass[32];
@@ -61,32 +52,6 @@ void setupAP() {
 
   EEPROM.put(0x00, settings);
 
-  // settings->ssid = server.arg("ssid");
-  // settings.pass = server.arg("pass");
-  // settings.ssid = server.arg("topic");
-  // settings.ssid = server.arg("broker");
-
-
-  // // ssid is stored in addr between 0 and 32 
-  // for (int i = 0; i < server.arg("ssid").length(); ++i) {
-  //   EEPROM.write(i, server.arg("ssid")[i]);
-  // }
-  
-  // // pwd is stored in addr between 33 and 64 
-  // for (int i = 0; i < server.arg("pwd").length(); ++i) {
-  //   EEPROM.write(32+i, server.arg("pwd")[i]);
-  // }
-  
-  // // topic starts at position 64
-  // for (int i = 0; i < server.arg("topic").length(); ++i) {
-  //   EEPROM.write(64+i, server.arg("topic")[i]);
-  // }
-
-  // // broker starts at position 100
-  // for (int i = 0; i < server.arg("broker").length(); ++i) {
-  //   EEPROM.write(100+i, server.arg("broker")[i]);
-  // }
-
   if (EEPROM.commit()) {      
     server.send(200, "application/json", "{message:'settings stored'}");
     delay(2000);
@@ -111,6 +76,10 @@ void beginAP() {
   Serial.println(WiFi.softAPIP());
 }
 
+void showConfig() {
+  server.send(200, "application/json", "{message:'someinfoplaceholder'}");
+}
+
 void clearCredentials() {
   for (int i = 0; i < 250; ++i) {
     EEPROM.write(i, 1);
@@ -131,15 +100,6 @@ bool beginST() {
 
   String pwd = settings.pass;
   String ssid = settings.ssid;
-
-  // // try to load eeprom data for SSID and pwd
-  // for (int i = 0; i < 32; ++i) {
-  //   ssid += char(EEPROM.read(i));
-  // }
-
-  // for (int i = 32; i < 64; ++i) {
-  //   pwd += char(EEPROM.read(i));
-  // }
 
   // disconnect from any previously connected network (open networks?) 
   if (WiFi.status() == WL_CONNECTED) {    
@@ -202,13 +162,13 @@ void initMQTT() {
 void setup ( void ) {
   pinMode(LED_BUILTIN, OUTPUT);
   digitalWrite(LED_BUILTIN, HIGH);
-  
+  digitalWrite(2, HIGH); // turn of device led ?
+
   Serial.begin(115200);
-  digitalWrite(2, HIGH); // turn of device led
   EEPROM.begin(EEPROM_SIZE);
   SPIFFS.begin();
   WiFi.persistent(false);
-  delay(2000);
+  delay(500);
 
   if (!beginST()) {    
     beginAP();
@@ -217,9 +177,13 @@ void setup ( void ) {
   } 
 
   // Set up endpoints for network configuration
+  server.on("/", HTTP_GET, showConfig);
   server.on("/setup", HTTP_POST, setupAP);
   server.on("/clear", HTTP_POST, clearCredentials); //endpoint for clearing ssid / pwd
   server.begin();
+  strip.cmd("fx", "5");
+  strip.cmd("spd", "2");
+  
 }
 
 void loop ( void ) {
