@@ -6,19 +6,12 @@
 #define REL_UNIT_BYTE 0.0039f
 #define REL_UNIT_SIZE 1.0f /  STRIP_SIZE
 
-#define CMD_TOGGLE "toggle"
+#define CMD_ON "on"
+#define CMD_OFF "off"
 #define CMD_FX "fx"
 #define CMD_BR "br"
-#define CMD_HU "hu"
+#define CMD_HU "hsl"
 #define CMD_SPD "spd"
-
-#define CMD_L_TOGGLE "ltoggle"
-#define CMD_L_BR  "lbr"
-#define CMD_L_HU  "lhu"
-
-#define CMD_R_TOGGLE "rtoggle"
-#define CMD_R_BR  "rbr"
-#define CMD_R_HU  "rhu"
 
 #define CMD_PLAY "play"
 #define CMD_PAUSE "pause"
@@ -40,14 +33,16 @@ enum FX {
   WAVE
 };
 
+typedef NeoPixelBus<NeoGrbFeature, NeoEsp8266Uart1800KbpsMethod> NeoPixelBusType;
+
 class Strip {
   public:
-    Strip();
+    Strip(uint16 length) : size() {};
     void test();
     void setRGBRange(byte r, byte g, byte b, int start, int end);
     void setHSLRange(byte h, byte s, byte l, int start, int end);
     void setHSBRange(byte h, byte s, byte b, int start, int end);
-    
+    void setLength();
     void clear();
 
     void fillRGB(uint8_t r, uint8_t g, uint8_t b);
@@ -60,18 +55,12 @@ class Strip {
 
   private:
     byte _max_bright;
-    byte _l_bright;
-    byte _r_bright;
-    byte _hue;
-    byte _r_hue;
-    byte _l_hue;
-    byte _l_on;
-    byte _r_on;
-
+    NeoPixelBusType bus;
     int frame_index;
     char spd;
     char eff_num;
     byte playing;
+    const uint16 size;
 
     leds pixels[STRIP_SIZE];
     byte oldh_list[STRIP_SIZE];

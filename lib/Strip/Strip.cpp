@@ -1,19 +1,13 @@
 #include <NeoPixelBus.h>
 #include <Strip.h>
 
-//I tried but have no clue on how to properly extend this
-//btw this method only works for d4 pin
-
-// NeoPixelBus<NeoGrbFeature, NeoEsp8266Dma800KbpsMethod> bus(STRIP_SIZE);
-// NeoPixelBus<NeoGrbFeature, NeoEsp8266AsyncUart1800KbpsMethod> bus(STRIP_SIZE);
-NeoPixelBus<NeoGrbFeature, NeoEsp8266Uart1800KbpsMethod> bus(STRIP_SIZE);
-
-Strip::Strip(){
+Strip::Strip(uint16 length) : size(length) {
   bus.Begin();
   _max_bright = 25;
   frame_index = 0;
   playing = 0;
-  spd = 10;
+  spd = 10;  
+  NeoPixelBusType bus(length);
 }
 
 void Strip::fillRGB(uint8_t r, uint8_t g, uint8_t b){
@@ -88,7 +82,7 @@ void Strip::cmd(String cmd, String payload) {
 void Strip::test(){
   bus.ClearTo(RgbColor(0,0,0));
   bus.Show();
-  for (int i = 0; i < STRIP_SIZE; i++ ) {
+  for (int i = 0; i < this->size; i++ ) {
     bus.SetPixelColor(i, RgbColor(255,0,0));
     bus.Show();
     delay(TEST_DELAY);
@@ -112,7 +106,7 @@ void Strip::test(){
 };
 
 void Strip::setRGBRange(byte r, byte g, byte b, int start, int end) {
-  if (start < 0 || end > STRIP_SIZE)
+  if (start < 0 || end > this->size)
     return;
 
   for (int i = start; i < end; i++ ) {
@@ -123,7 +117,7 @@ void Strip::setRGBRange(byte r, byte g, byte b, int start, int end) {
 }
 
 void Strip::setHSLRange(byte h, byte s, byte l, int start, int end) {
-  if (start < 0 || end > STRIP_SIZE)
+  if (start < 0 || end > this->size)
     return;
 
   HslColor color = HslColor((float) REL_UNIT_BYTE *  h, (float) REL_UNIT_BYTE * s, (float) REL_UNIT_BYTE * l);
@@ -136,7 +130,7 @@ void Strip::setHSLRange(byte h, byte s, byte l, int start, int end) {
 }
 
 void Strip::setHSBRange(byte h, byte s, byte b, int start, int end) {
-  if (start < 0 || end > STRIP_SIZE)
+  if (start < 0 || end > this->size)
     return;
 
   HsbColor color = HsbColor((float) REL_UNIT_BYTE *  h, (float) REL_UNIT_BYTE * s, (float) REL_UNIT_BYTE * b);
@@ -155,7 +149,7 @@ void Strip::clear() {
 
 void  Strip::randomize() {
   byte px = 0;
-  for (px = 0; px < STRIP_SIZE ; px++) {
+  for (px = 0; px < this->size ; px++) {
     pixels[px].hue = byte(random(255));
     pixels[px].br = byte(random(this->_max_bright));
     pixels[px].sat = 255;
@@ -167,7 +161,7 @@ void  Strip::randomize() {
 //   byte hue = 0;
 //   static byte hue_inc = 0;
 //   hue_inc++;
-//   for (n = 0; n < STRIP_SIZE ; n++ ) {
+//   for (n = 0; n < this->size ; n++ ) {
 //     if (n % 16  == 0){
 //       hue += 16;
 //     }
@@ -184,7 +178,7 @@ void Strip::fx_wave() {
   static boolean dir = true;
   byte n = 0;
 
-  if (indx > STRIP_SIZE * 2) {
+  if (indx > this->size * 2) {
     dir = !dir;
     hue+=4;
   }
@@ -192,37 +186,27 @@ void Strip::fx_wave() {
   // if (dir && pixels[indx].br >= _max_bright) indx++;
   // if (!dir && pixels[indx].br == 0) indx--;
 
-  for (n = 0; n < STRIP_SIZE ; n++ ) {    
+  for (n = 0; n < this->size ; n++ ) {    
     pixels[n].sat = 255;
     pixels[n].hue = hue;
     // if (dir) {
       if (pixels[n].br >= _max_bright) indx++;
 
       if (n == indx && pixels[n].br < _max_bright) pixels[n].br += 2;
-      if (indx > (n + STRIP_SIZE) ) pixels[n].br -=4;
+      if (indx > (n + this->size) ) pixels[n].br -=4;
       // if (n == indx +1 && pixels[n].br > ( _max_bright  / 2 )) pixels[indx + 1].br--;
       // if (n == indx -1 && pixels[n].br > 0) pixels[indx - 1].br--;
     // } else {
       
       // if (n == indx && pixels[n].br > 0) pixels[n].br -= 2;
-      // if (n  + STRIP_SIZE == indx ) pixels[n].br +=2;
+      // if (n  + this->size == indx ) pixels[n].br +=2;
       // if (n == indx -1 && pixels[n].br > ( _max_bright  / 2 )) pixels[indx + 1].br--;
       // if (n == indx +1 && pixels[n].br > 0) pixels[indx - 1].br--;
     // }
   }
 }
 
-
-// void Strip::set_side_br(byte br, byte side) {
-
-// }
-
-// void Strip::toggle_side(byte side) {
-//   if (side) 
-
-// }
-
-void Strip::fx_rainbow() { //rainbow 2
+void Strip::fx_rainbow() { //color cycle
   static byte hue_inc = 0;
 
   if (frame_index % spd == 0) {
@@ -230,31 +214,12 @@ void Strip::fx_rainbow() { //rainbow 2
   }
 
   byte n = 0;
-  for (n = 0; n < STRIP_SIZE ; n++ ) {
+  for (n = 0; n < this->size ; n++ ) {
     pixels[n].hue = (n * 2)  + hue_inc;
     pixels[n].br = _max_bright;
     pixels[n].sat = 255;
   }
 }
-
-// void Strip::_eff_2() { //split something
-//   byte n = 0;
-//   static byte hue = random(255);
-
-//   // if (frame_index % 10 == 0) {
-//     hue++;
-//   // }
-
-//   for (n = 0; n < STRIP_SIZE ; n++ ) {
-//     if (n % (STRIP_SIZE / 2) == 0) {
-//       hue += 64;
-//     }
-//     pixels[n].hue == hue;
-//     pixels[n].sat = 255;
-//     pixels[n].br = _max_bright;
-//   }
-// }
-
 
 void Strip::fx_wavebow() {
   static byte h_center = 0;
@@ -264,17 +229,17 @@ void Strip::fx_wavebow() {
 
   if (frame_index == 0 ) {
     //set the base for the effect
-    for (n = 0; n < STRIP_SIZE; n++) {
+    for (n = 0; n < this->size; n++) {
       pixels[n].br = _max_bright;
       pixels[n].sat = 255;
       pixels[n].hue = h_center + n;
     }
   }
 
-  for (n = 0; n < STRIP_SIZE; n++) {
+  for (n = 0; n < this->size; n++) {
       pixels[n].hue = h_center + n;
       pixels[n].sat = 255;
-      pixels[n].br = (br_center + n) * ((float)_max_bright / STRIP_SIZE);
+      pixels[n].br = (br_center + n) * ((float)_max_bright / this->size);
   }
 
   if (frame_index % spd == 0) {
@@ -282,49 +247,15 @@ void Strip::fx_wavebow() {
   }
 
   if (frame_index % spd == 0) {
-    if (br_center == STRIP_SIZE || br_center == 0) {
+    if (br_center == this->size || br_center == 0) {
       dir = dir * -1;
     }
     br_center += dir;
   }
 }
 
-// void Strip::_aurora() {
-  // static byte h_center = 80;
-  // static byte brn1 = 14;
-  // static byte brn2 = 15;
-  // byte br = 80;
-  // byte n = 0 ;
-  //
-  // if (frame_index == 0 ) {
-  //   //set the base for the effect
-  //   for (n = 0; n < 30; n ++) {
-  //     pixels[n].br = _max_bright;
-  //     pixels[n].sat = 255;
-  //     pixels[n].hue = (n < 15) ? h_center + (15 - n) * 2: h_center - (n - 15) * 2;
-  //   }
-  // }
-  //
-  // for (n = 0; n < 30; n++ ) {
-  //   if (n < 15) {
-  //     pixels[n].br += (n == brn1)? pixels[n].br + 5: br - ((15 - n) * 2);)
-  //     pixels[n].br =
-  //     pixels[n].hue = ++h_center;
-  //   } else {
-  //     pixels[n].br = (n == brn2)? pixels[n].br + 5: br - ((n - 15) * 2);
-  //     pixels[n].hue = --h_center;
-  //   }
-  //   pixels[n].sat = 255;
-  // }
-  //
-  // if (frame_index % 2 == 0) {
-  //   brn1 = (brn1 == 0) ? 14 : brn1-1;
-  //   brn2 = (brn2 == 29) ? 15 : brn2+1;
-  //   //h_center++;
-  // }
 
-// }
-
+/** Splits strip in half and uses stuff **/
 void Strip::fx_opposites() {
   static byte hue = 0;
   byte n = 0;
@@ -333,8 +264,8 @@ void Strip::fx_opposites() {
     hue++;
   }
   
-  for (n = 0; n < STRIP_SIZE; n++ ) {
-    if (n < STRIP_SIZE / 2) {
+  for (n = 0; n < this->size; n++ ) {
+    if (n < this->size / 2) {
       pixels[n].hue = hue + 128;
       pixels[n].br = _max_bright;
       pixels[n].sat = 255;
@@ -351,11 +282,11 @@ void Strip::fx_opp_seg() { //area efect (hue from 0 + increment on half of the s
   byte n = 0;
   static byte h = 0;
 
-  for (n = 0; n < STRIP_SIZE ; n++) {
-    if( n < (STRIP_SIZE / 2)) {
-      pixels[n].hue = n * (255 / STRIP_SIZE) + h;
+  for (n = 0; n < this->size ; n++) {
+    if( n < (this->size / 2)) {
+      pixels[n].hue = n * (255 / this->size) + h;
     } else {
-      pixels[n].hue = (STRIP_SIZE - n -1) * (255 / STRIP_SIZE) +  h;
+      pixels[n].hue = (this->size - n -1) * (255 / this->size) +  h;
     }
 
     pixels[n].br = _max_bright;
@@ -368,38 +299,13 @@ void Strip::fx_opp_seg() { //area efect (hue from 0 + increment on half of the s
 
 }
 
-/*
-void Strip::_eff_5() {
-  byte n = 0;
-  static byte h,b = 0;
-  static int inc = -1;
-
-
-  for (n = 0; n < STRIP_SIZE ; n++) {
-    if( n < (STRIP_SIZE / 2)) {
-      pixels[n].br = n * (_max_bright / STRIP_SIZE  ) ;
-    } else {
-      pixels[n].br = (STRIP_SIZE - n -1) * (_max_bright / STRIP_SIZE) ;
-    }
-
-    pixels[n].hue = n * (255 / STRIP_SIZE) + h;
-    pixels[n].sat = 255;
-  }
-
-  if (frame_index % 4 == 0) {
-
-  }
-
-}
-*/
-
 void Strip::fx_aurora() {
   static byte first_run = 1;
   static byte hue_inc = 0;
-  static int dirs[STRIP_SIZE];
+  static int dirs[this->size];
 
   if (first_run == 1) {
-    for (int i = 0; i < STRIP_SIZE; i++) {
+    for (int i = 0; i < this->size; i++) {
       pixels[i].br = i % 2 * _max_bright;
     }
     first_run = 0;
@@ -409,7 +315,7 @@ void Strip::fx_aurora() {
     hue_inc++;
   }
 
-  for (int n = 0; n < STRIP_SIZE; n++ ) {
+  for (int n = 0; n < this->size; n++ ) {
     //if (frame_index % 1 == 0) {
     if (pixels[n].br == _max_bright) { //we should start reducing
       dirs[n] = -1;
@@ -455,7 +361,7 @@ void Strip::nextFrame(char eff_index) {
       break;
   }
   byte n = 0;
-  for (n = 0; n < STRIP_SIZE; n++ ) {
+  for (n = 0; n < this->size; n++ ) {
     bus.SetPixelColor(n, RgbColor(
       HsbColor( pixels[n].hue * REL_UNIT_BYTE,
                 pixels[n].sat * REL_UNIT_BYTE,
