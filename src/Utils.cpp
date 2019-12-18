@@ -1,8 +1,5 @@
 
-#include <EEPROM.h>
 #include <Utils.h>
-#include <types.h>
-/** completely clear eeprom **/
 
 namespace Utils {
   void initStorage(){

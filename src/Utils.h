@@ -4,6 +4,7 @@
 #define EEPROM_SIZE 512
 #define SETTINGS_ADDR 0x00
 
+#include <EEPROM.h>
 #include <types.h>
 
 namespace Utils {

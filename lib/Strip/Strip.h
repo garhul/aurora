@@ -22,10 +22,11 @@ enum FX {
   COUNT,
 };
 
+typedef NeoPixelBus<NeoGrbFeature, NeoEsp8266Uart1800KbpsMethod> bus_t;
 
 class Strip {
   public:
-    Strip();
+    Strip(int size);
     void test();
     void setRGBRange(byte r, byte g, byte b, int start, int end);
     void setHSLRange(byte h, byte s, byte l, int start, int end);
@@ -40,13 +41,14 @@ class Strip {
     void loop();
 
   private:
+    bus_t bus;
     byte _max_bright;
     int frame_index;
     char spd;
     char eff_num;
 
-    leds pixels[STRIP_SIZE];
-    byte oldh_list[STRIP_SIZE];
+    leds pixels[];
+    byte oldh_list[];
     void randomize();
     void fx_aurora();
     void fx_rainbow();
