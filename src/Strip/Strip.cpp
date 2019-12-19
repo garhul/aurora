@@ -26,8 +26,8 @@ void Strip::loop() {
     static long counter = 0;
 
     if (counter % 300 == 0) {
-      Serial.print("Time for 300 frames: ")
-      Serial.println(millis() - t_frame);
+      Serial.print(300000 / (millis() - t_frame));
+      Serial.println(" fps");
       t_frame = millis();
     }
     
@@ -36,7 +36,7 @@ void Strip::loop() {
   //TODO:: benchmark frame rate 
   if (mode == MODES::PLAYING)
     nextFrame(this->fx);
-    delay(25);
+    delay(20);
 }
 
 /**
@@ -58,15 +58,17 @@ void Strip::cmd(String cmd, String payload) {
     this->test();
     this->mode =  MODES::OFF;
   } else if (cmd == "br") {
+    this->resetFrameCount();
     this->_max_bright = atoi(payload.c_str());
   } else if (cmd == "spd") {
+    this->resetFrameCount();
     byte spd = atoi(payload.c_str());
     if (spd == 0) spd = 1;
     this->spd = spd;
   } else if (cmd == "fx") {
+    this->resetFrameCount();
     this->mode = MODES::PLAYING;
     this->fx = atoi(payload.c_str());
-    char* spd ;
   } else if (cmd == "set") {
     this->mode = MODES::PAUSED;
     char* pl = (char*) payload.c_str();
@@ -246,15 +248,13 @@ void Strip::fx_opp_seg() { //area efect (hue from 0 + increment on half of the s
 }
 
 void Strip::fx_aurora() {
-  static byte first_run = 1;
   static byte hue_inc = 0;
   static int dirs[MAX_LENGTH];
 
-  if (first_run == 1) {
+  if (frame_index == 0) {
     for (int i = 0; i < this->size; i++) {
       pixels[i].br = i % 2 * _max_bright;
     }
-    first_run = 0;
   }
 
   if (frame_index % spd == 0) {
@@ -262,14 +262,14 @@ void Strip::fx_aurora() {
   }
 
   for (int n = 0; n < this->size; n++ ) {
-    //if (frame_index % 1 == 0) {
-    if (pixels[n].br == _max_bright) { //we should start reducing
-      dirs[n] = -1;
-    } else if (pixels[n].br <= 0) {
-      dirs[n] = 1;
+    if (frame_index % spd == 0) {
+      if (pixels[n].br == _max_bright) { //we should start reducing
+        dirs[n] = -1;
+      } else if (pixels[n].br <= 0) {
+        dirs[n] = 1;
+      }
+      pixels[n].br += dirs[n];
     }
-    pixels[n].br += dirs[n];
-  //}
 
     pixels[n].hue = (n * 2)  + hue_inc;
     pixels[n].sat = 255;

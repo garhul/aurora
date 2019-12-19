@@ -3,7 +3,7 @@
 #define TEST_DELAY 15
 #define REL_UNIT_BYTE 0.0039f
 #define REL_UNIT_SIZE 1.0f /  STRIP_SIZE
-
+#define BENCHMARK
 #define MAX_LENGTH 300 //TODO:: temporal solution for dinamic array implementation
 
 struct leds {
