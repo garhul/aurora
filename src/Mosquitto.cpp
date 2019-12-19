@@ -1,8 +1,8 @@
 #include <Mosquitto.h>
 
 namespace Mosquitto {
-  MQTTClient client;
   WiFiClient wcli;
+  MQTTClient client;
   void (*handler)(String topic, String payload);
 
   void handleMessage(String &topic, String &payload) {
@@ -15,7 +15,7 @@ namespace Mosquitto {
   }
 
   void init(const char* broker, const char* topic, void (*handler)(String topic, String payload)) {
-    String clientID  = String("aurora_") + String(ESP.getChipId(), HEX);
+    String clientID  = Utils::getDeviceName();
     byte attempts = 0;
 
     client.begin(broker, wcli);
@@ -23,7 +23,7 @@ namespace Mosquitto {
     Serial.println(broker);
 
     //TODO:: add timeout
-    while (!client.connect((clientID.c_str(), "", "")) && attempts < CONN_RETRIES) {
+    while (!client.connect(clientID.c_str()) && attempts < CONN_RETRIES) {
       Serial.print(".");
       attempts++;
       delay(1000);

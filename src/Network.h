@@ -5,7 +5,7 @@
 #include <WiFiClient.h>
 #include <Hash.h>
 #include <types.h>
-
+#include <Utils.h>
 
 #define AP_SSID "aurora_"
 #define AP_USE_PWD false
@@ -19,8 +19,9 @@
 namespace Network {
   // WiFiClient net; Don't think I need it
   enum MODES {AP, ST, DISCONNECTED};
-  byte mode;
-
+  byte getMode();
+  void beginAP();
+  bool beginST(const char* ssid, const char* pwd);
   void init(String ssid, String pwd);
 }
 

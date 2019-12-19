@@ -1,7 +1,7 @@
 
-#include <Server.h>
+#include <WebServer.h>
 
-namespace Server {
+namespace WebServer {
   ESP8266WebServer server(80);
   void (*cmdHandler)(String cmd, String payload);
 
@@ -33,6 +33,7 @@ namespace Server {
 
     server.arg("cmd").toCharArray(cmd, 32);
     cmdHandler(String(cmd), String(payload));
+    server.send(200, "application/json", "{\"message\":\"ok\"}");
   }
 
   void _setup() {
@@ -73,8 +74,8 @@ namespace Server {
 
   void _info() {
     settings_t settings = Utils::getSettings();
-    String body = "{\"settings\":{\"ssid\":" + String(settings.ssid) + " ,\"topic\":" +
-      String(settings.topic) + ",\"broker\":" + String(settings.broker) + ",\"strip_size\":" + String(settings.strip_size, DEC) + "}}";
+    String body = "{\"settings\":{\"ssid\":\"" + String(settings.ssid) + "\" ,\"topic\":\"" +
+      String(settings.topic) + "\",\"broker\":\"" + String(settings.broker) + "\",\"strip_size\":\"" + String(settings.strip_size, DEC) + "\"}}";
 
     server.send(200, "application/json", body);
   }

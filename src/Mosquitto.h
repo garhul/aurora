@@ -3,13 +3,11 @@
 
 #include <MQTT.h>
 #include <WiFiClient.h>
-
+#include <Utils.h>
 #define CONN_RETRIES 3
 
 namespace Mosquitto {
-  WiFiClient wcli;
-  void (*handler)(String topic, String payload);
-
+  
   //TODO:: add function prototype for message handling
   void init(const char* broker, const char* topic, void (*handler)(String topic, String payload));
   void handleMessage(String &topic, String &payload);

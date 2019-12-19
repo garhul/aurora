@@ -5,6 +5,7 @@
 #define SETTINGS_ADDR 0x00
 
 #include <EEPROM.h>
+#include <Arduino.h>
 #include <types.h>
 
 namespace Utils {
@@ -12,6 +13,8 @@ namespace Utils {
   bool clearStorage();
   bool storeSettings(settings_t settings);
   settings_t getSettings();
+
+  String getDeviceName();
 }
 
 #endif

@@ -24,4 +24,8 @@ namespace Utils {
     EEPROM.get(0x00, settings);
     return settings;
   }
+  
+  String getDeviceName() {
+    return String("Aurora_") + String(ESP.getChipId(), HEX);
+  }
 }

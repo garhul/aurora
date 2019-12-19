@@ -2,25 +2,27 @@
 #include <defaults.h>
 #include <types.h>
 #include <FS.h>
-#include <Strip.h>
+#include <Strip/Strip.h>
 #include <Network.h>
 #include <Mosquitto.h>
 #include <Utils.h>
-#include <Server.h>
+#include <WebServer.h>
 
 
-Strip strip;
+Strip* strip;
 
-void messageHandler(String topic, String payload) {
-  Serial.print("|Topic: " + topic + " |");
+void messageHandler(String cmd, String payload) {
+  Serial.print("|CMD: " + cmd + " |");
   Serial.print("|Payload:" + payload + " |");
   Serial.println("");
 
-  // strip.cmd(/*implement*/ );
+  strip->cmd(cmd, payload);
 }
 
 void setup ( void ) {
+  Utils::initStorage();
   settings_t settings = Utils::getSettings();
+  strip = new Strip(settings.strip_size);
   Serial.begin(115200);
   digitalWrite(2, HIGH); // turn of device led
 
@@ -30,15 +32,15 @@ void setup ( void ) {
 
   Network::init(settings.ssid, settings.pass);
   
-  if (Network::mode == Network::MODES::ST)
+  if (Network::getMode() == Network::MODES::ST)
     Mosquitto::init(settings.broker, settings.topic, messageHandler);
   
-  Server::init(messageHandler);
+  WebServer::init(messageHandler);
 }
 
 void loop ( void ) {
   yield();
   Mosquitto::loop();
-  Server::loop();
-  strip.loop();
+  WebServer::loop();
+  strip->loop();
 }

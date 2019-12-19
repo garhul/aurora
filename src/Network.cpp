@@ -1,9 +1,11 @@
 #include <Network.h>
 
 namespace Network {
-  byte mode = MODES::DISCONNECTED;
+  byte mode;
 
   void init(String ssid, String pwd) {
+    mode = MODES::DISCONNECTED;
+
     if (beginST(ssid.c_str(), pwd.c_str())) {
       mode = MODES::ST;
     } else {
@@ -12,13 +14,17 @@ namespace Network {
     }
   }
  
+  byte getMode() {
+   return mode;
+  }
+
   void beginAP() {
     WiFi.mode(WIFI_AP);
 
     #if AP_USE_PWD
       WiFi.softAP(AP_SSID, AP_PWD);
     #else
-      WiFi.softAP(AP_SSID);
+      WiFi.softAP(Utils::getDeviceName().c_str());
     #endif
 
     WiFi.printDiag(Serial);
