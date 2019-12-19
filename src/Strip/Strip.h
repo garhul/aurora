@@ -1,15 +1,21 @@
 #include <NeoPixelBus.h>
 
-#define STRIP_SIZE 30
 #define TEST_DELAY 15
-
 #define REL_UNIT_BYTE 0.0039f
 #define REL_UNIT_SIZE 1.0f /  STRIP_SIZE
+#define BENCHMARK
+#define MAX_LENGTH 300 //TODO:: temporal solution for dinamic array implementation
 
 struct leds {
   byte hue;
   byte sat;
   byte br;
+};
+
+enum MODES {
+  OFF,
+  PAUSED,
+  PLAYING
 };
 
 enum FX {
@@ -22,10 +28,9 @@ enum FX {
   COUNT,
 };
 
-
 class Strip {
   public:
-    Strip();
+    Strip(uint16 length);
     void test();
     void setRGBRange(byte r, byte g, byte b, int start, int end);
     void setHSLRange(byte h, byte s, byte l, int start, int end);
@@ -36,17 +41,20 @@ class Strip {
     void setMaxBrightness(byte b);
     void resetFrameCount();
     void nextFrame(char index); //shows next frame if in animation mode
-    void cmd(String cmd);
+    void cmd(String cmd, String payload);
     void loop();
 
   private:
+    NeoPixelBus<NeoGrbFeature, NeoEsp8266Uart1800KbpsMethod>* bus;
     byte _max_bright;
+    uint16 size;
     int frame_index;
     char spd;
-    char eff_num;
+    char fx;
+    byte mode;
 
-    leds pixels[STRIP_SIZE];
-    byte oldh_list[STRIP_SIZE];
+    leds pixels[MAX_LENGTH];
+    byte oldh_list[MAX_LENGTH];
     void randomize();
     void fx_aurora();
     void fx_rainbow();
@@ -54,3 +62,4 @@ class Strip {
     void fx_opposites();
     void fx_opp_seg();
 };
+

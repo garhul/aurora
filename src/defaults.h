@@ -1,10 +1,8 @@
-#define AP_SSID "aurora_"
-#define AP_USE_PWD false
-#define AP_PWD "1234"
-#define AP_DEVICE_NAME "aurora_"
-#define ST_DEVICE_NAME "aurora"
-#define ST_CONN_TIMEOUT 10000
-#define ST_ANNOUNCE_PORT 3001
+#ifndef __DEFAULTS_H__
+#define __DEFAULTS_H__
+
 #define AWAKE_TEST true
 #define CONN_RETRIES 3
-#define EEPROM_SIZE 512
+
+
+#endif
