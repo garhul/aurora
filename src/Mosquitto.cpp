@@ -8,16 +8,21 @@ namespace Mosquitto {
   void handleMessage(String &topic, String &payload) {
     Serial.println("Received on topic [" + topic + "] payload  [" + payload + "]");
 
-    //todo :: extract last token from mosquitto topic
+    //todo :: extract last token from mosquitto topic    
+    char *last = strrchr(topic.c_str(), '/');
     
-    handler(topic, payload);
+    if (last != NULL) {
+      printf("Last token: '%s'\n", last+1);
+    }
+
+    handler(String(last + 1 ), payload);
   }
 
   void loop() {
     client.loop();
   }
 
-  void init(const char* broker, const char* topic, void (*handler)(String topic, String payload)) {
+  void init(const char* broker, const char* topic, void (*msgHandler)(String topic, String payload)) {
     String clientID  = Utils::getDeviceName();
     byte attempts = 0;
 
@@ -40,6 +45,7 @@ namespace Mosquitto {
     Serial.print("Subcribed to topic");
     Serial.println(topic);
 
+    handler = msgHandler;
     client.subscribe(topic);
     client.onMessage(handleMessage);
   }
