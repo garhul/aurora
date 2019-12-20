@@ -7,6 +7,9 @@ namespace Mosquitto {
 
   void handleMessage(String &topic, String &payload) {
     Serial.println("Received on topic [" + topic + "] payload  [" + payload + "]");
+
+    //todo :: extract last token from mosquitto topic
+    
     handler(topic, payload);
   }
 

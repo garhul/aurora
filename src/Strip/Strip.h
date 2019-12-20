@@ -6,11 +6,11 @@
 #define BENCHMARK
 #define MAX_LENGTH 300 //TODO:: temporal solution for dinamic array implementation
 
-struct leds {
+typedef struct {
   byte hue;
   byte sat;
   byte br;
-};
+ }  leds;
 
 enum MODES {
   OFF,
@@ -24,7 +24,11 @@ enum FX {
   WAVEBOW,
   AURORA,
   OPPOSITES,
-  OPPOSITES_SEGMENTED,
+  HUE_SPLIT,
+  CHASER,
+  WHITE_AURORA,
+  WHITE_CHASER,
+  TRIP,
   COUNT,
 };
 
@@ -52,14 +56,17 @@ class Strip {
     char spd;
     char fx;
     byte mode;
-
     leds pixels[MAX_LENGTH];
-    byte oldh_list[MAX_LENGTH];
     void randomize();
     void fx_aurora();
     void fx_rainbow();
     void fx_wavebow();
     void fx_opposites();
-    void fx_opp_seg();
+    void fx_hue_split();
+    void fx_chaser();
+    void fx_chaser_double();
+    void fx_white_aurora();
+    void fx_white_chaser();
+    void fx_trip();
 };
 
