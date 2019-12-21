@@ -4,8 +4,8 @@ Strip::Strip(uint16 length) {
   _max_bright = 25;
   frame_index = 0;
   spd = 10;
-  mode = MODES::OFF;
-  size = length;  
+  mode = MODES::OFF;  
+  size = (length < MAX_LENGTH) ? length : MAX_LENGTH;  
   bus = new NeoPixelBus<NeoGrbFeature, NeoEsp8266Uart1800KbpsMethod>(length);
   bus->Begin();
 }
@@ -154,7 +154,115 @@ void  Strip::randomize() {
   }
 }
 
-void Strip::fx_rainbow() { //rainbow 2
+void Strip::fx_chaser() {
+  static byte hue = 90;
+  static byte chaser_len = 7; // 7 pixels length
+  static byte space = 7;
+  static byte idx = 0;  
+  static byte adv = 0;
+  byte n = 0;
+  byte br = 0;
+  leds tmp;
+
+  if (frame_index == 0) {
+    for (n = 0; n < this->size; n++) {   
+      idx = ++idx % (chaser_len + space);
+      //if (idx == 0) hue+=;
+
+      if (idx < chaser_len) {
+        br = (_max_bright / chaser_len) * idx;        
+        pixels[n].sat = 255;        
+      } else {
+        br = 0;        
+      }
+      
+      pixels[n].br = br;      
+      pixels[n].hue = hue;
+    }
+  }
+
+  
+
+  if (frame_index % spd == 0) {
+    adv = ++adv % this->size;
+    if (adv == 0) hue+=8;
+
+    tmp = pixels[0];
+    for (n = 0; n < this->size - 1; n++) {
+      pixels[n] = pixels[n + 1];
+      pixels[n].hue = hue;
+    } 
+    pixels[ this->size - 1] = tmp ;        
+    pixels[ this->size - 1].hue = hue;
+  }
+}
+
+void Strip::fx_white_chaser() {  
+  static byte chaser_len = 7; // 7 pixels length
+  static byte space = 7;
+  static byte idx = 0;    
+  byte n = 0;
+  byte br = 0;
+  leds tmp;
+
+  if (frame_index == 0) {
+    for (n = 0; n < this->size; n++) {   
+      idx = ++idx % (chaser_len + space);
+
+      if (idx < chaser_len) {
+        br = (_max_bright / chaser_len) * idx;        
+        pixels[n].sat = 0;
+      } else {
+        br = 0;        
+      }      
+      pixels[n].br = br;            
+    }
+  }
+  
+
+  if (frame_index % spd == 0) {
+    tmp = pixels[0];
+    for (n = 0; n < this->size - 1; n++) {
+      pixels[n] = pixels[n + 1];      
+    } 
+    pixels[ this->size - 1] = tmp ;            
+  }
+}
+
+void Strip::fx_trip() {  
+  static byte chaser_len = 10; // 7 pixels length
+  static byte space = 20;  
+  byte br = 0;
+  byte idx = 0;
+  byte n = 0;  
+  leds tmp;
+
+  if (frame_index == 0) {
+    this->randomize();
+    
+    for (n = 0; n < this->size; n++) {   
+      idx = ++idx % (chaser_len + space);
+      if (idx < chaser_len) {
+        pixels[n].br = (_max_bright / chaser_len) * idx;                
+      } else {
+        pixels[n].br = _max_bright / chaser_len;        
+      }
+    }
+    
+  }
+  
+
+  if (frame_index % spd == 0) {
+    tmp = pixels[0];
+    for (n = 0; n < this->size - 1; n++) {
+      pixels[n].br = pixels[n + 1].br;
+    } 
+    pixels[ this->size - 1].br = tmp.br ;            
+  }
+}
+
+// simple hue transition
+void Strip::fx_rainbow() {
   static byte hue_inc = 0;
 
   if (frame_index % spd == 0) {
@@ -169,6 +277,8 @@ void Strip::fx_rainbow() { //rainbow 2
   }
 }
 
+
+// TODO:: check the effect
 void Strip::fx_wavebow() {
   static byte h_center = 0;
   static byte br_center = 0;
@@ -202,6 +312,8 @@ void Strip::fx_wavebow() {
   }
 }
 
+
+/** Split strip in two with a 180 degree in between hues */
 void Strip::fx_opposites() {
   static byte hue = 0;
 
@@ -226,7 +338,9 @@ void Strip::fx_opposites() {
   }
 }
 
-void Strip::fx_opp_seg() { //area efect (hue from 0 + increment on half of the strip)
+
+//area efect (hue from 0 + increment on half of the strip)
+void Strip::fx_hue_split() { 
   byte n = 0;
   static byte h = 0;
 
@@ -276,6 +390,31 @@ void Strip::fx_aurora() {
   }
  }
 
+ 
+void Strip::fx_white_aurora() {
+  static int dirs[MAX_LENGTH];
+
+  if (frame_index == 0) {
+    for (int i = 0; i < this->size; i++) {
+      pixels[i].br = i % 2 * _max_bright;
+    }
+  }
+
+  for (int n = 0; n < this->size; n++ ) {
+    if (frame_index % spd == 0) {
+      if (pixels[n].br == _max_bright) { //we should start reducing
+        dirs[n] = -1;
+      } else if (pixels[n].br <= 2) {
+        dirs[n] = 1;
+      }
+      pixels[n].br += dirs[n];
+    }
+
+    pixels[n].hue = 0;
+    pixels[n].sat = 0;
+  }
+ }
+
 void Strip::resetFrameCount() {
   frame_index = 0;
 }
@@ -286,6 +425,10 @@ void Strip::nextFrame(char eff_index) {
       this->fx_aurora();
       break;
     
+    case FX::WHITE_AURORA: 
+      this->fx_white_aurora();
+      break;
+
     case FX::RAINBOW :
       this->fx_rainbow();
       break;
@@ -298,8 +441,20 @@ void Strip::nextFrame(char eff_index) {
       this->fx_opposites();
       break;
     
-    case FX::OPPOSITES_SEGMENTED :
-      this->fx_opp_seg();
+    case FX::HUE_SPLIT :
+      this->fx_hue_split();
+      break;
+    
+    case FX::CHASER :
+      this->fx_chaser();
+      break;
+
+    case FX::WHITE_CHASER :
+      this->fx_white_chaser();
+      break;
+    
+    case FX::TRIP :
+      this->fx_trip();
       break;
   }
   byte n = 0;
