@@ -9,6 +9,8 @@ namespace WebServer {
     server.on("/setup", HTTP_POST, _setup);
     server.on("/cmd", HTTP_ANY, _cmd);
     server.on("/clear", HTTP_POST, _clearCredentials); //endpoint for clearing ssid / pwd
+    server.on("/info", HTTP_ANY, _info);
+    server.on("/", HTTP_ANY, _control);
     server.onNotFound(_info);
     server.begin();
     cmdHandler = f;
@@ -70,6 +72,23 @@ namespace WebServer {
     }
 
     server.send(500, "text/plain", "Unable to store settings");
+  }
+
+  void _control() {
+    if (! SPIFFS.exists("/index.html")) {
+      server.send(404,"text/plain", "File not found");
+      return ;
+    }
+    
+    File f = SPIFFS.open("/index.html", "r");  
+    if (!f) {
+      server.send(500, "text/plain", "Error opening file");
+      return;
+    }
+
+    //read the file in chunks (not that much ram)
+    server.streamFile(f, "text/html");
+    f.close();
   }
 
   void _info() {

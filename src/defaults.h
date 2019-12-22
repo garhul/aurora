@@ -4,5 +4,4 @@
 #define AWAKE_TEST true
 #define CONN_RETRIES 3
 
-
 #endif

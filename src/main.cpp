@@ -26,10 +26,8 @@ void setup ( void ) {
   Serial.begin(115200);
   digitalWrite(2, HIGH); // turn of device led
 
-  #ifdef USE_FS
-    SPIFFS.begin();
-  #endif
-
+  SPIFFS.begin();
+  
   Network::init(settings.ssid, settings.pass);
   
   if (Network::getMode() == Network::MODES::ST)
