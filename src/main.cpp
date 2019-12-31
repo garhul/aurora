@@ -16,14 +16,14 @@ void messageHandler(String cmd, String payload) {
   Serial.print("|Payload:" + payload + " |");
   Serial.println("");
 
-  // strip->cmd(cmd, payload);
+  strip->cmd(cmd, payload);
 }
 
 void setup ( void ) {
   Utils::initStorage();
   settings_t settings = Utils::getSettings();
   
-  if (isnan(settings.strip_size)) {
+  if (!isnan(settings.strip_size) && settings.strip_size < MAX_LENGTH ) {
     strip = new Strip(settings.strip_size);
   } else {
     strip = new Strip(1);
