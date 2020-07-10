@@ -38,7 +38,8 @@ namespace Utils {
     "\",\"device_id\":\"" + String(getDeviceId()) +
     "\",\"broker\":\"" + String(settings.broker) +
     "\" ,\"topic\":\"" + String(settings.topic) +
-    "\",\"strip_size\":\"" + String(settings.strip_size, DEC) +    
+    "\",\"strip_size\":\"" + String(settings.strip_size, DEC) + 
+    "\",\"ip\":\"" + WiFi.localIP().toString();
     "\"}}";
 
     return info;

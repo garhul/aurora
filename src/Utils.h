@@ -7,6 +7,7 @@
 #include <EEPROM.h>
 #include <Arduino.h>
 #include <types.h>
+#include <ESP8266WiFi.h>
 
 namespace Utils {
   void initStorage();
