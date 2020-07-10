@@ -7,7 +7,7 @@ namespace WebServer {
 
   void init(void (*f)(String,String)) {
     server.on("/setup", HTTP_POST, _setup);
-    server.on("/cmd", HTTP_ANY, _cmd);
+    server.on("/cmd", HTTP_POST, _cmd);
     server.on("/clear", HTTP_POST, _clearCredentials); //endpoint for clearing ssid / pwd
     server.on("/info", HTTP_ANY, _info);
     server.on("/", HTTP_ANY, _control);
@@ -92,11 +92,7 @@ namespace WebServer {
   }
 
   void _info() {
-    settings_t settings = Utils::getSettings();
-    String body = "{\"settings\":{\"ssid\":\"" + String(settings.ssid) + "\" ,\"topic\":\"" +
-      String(settings.topic) + "\",\"broker\":\"" + String(settings.broker) + "\",\"strip_size\":\"" + String(settings.strip_size, DEC) + "\"}}";
-
-    server.send(200, "application/json", body);
+    server.send(200, "application/json", Utils::getInfoJson());
   }
 
   void _clearCredentials() {

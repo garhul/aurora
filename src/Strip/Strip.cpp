@@ -47,29 +47,28 @@ void Strip::cmd(String cmd, String payload) {
   Serial.println(cmd);
   Serial.println(payload);
 
-  if (cmd == "off") {
+  if (cmd == CMD_OFF) {
     this->clear();
     this->mode = MODES::OFF;
-  } else if (cmd == "pause") {
+  } else if (cmd == CMD_PAUSE) {
     this->mode = MODES::PAUSED;
-  } else if (cmd == "play") {
+  } else if (cmd == CMD_PLAY) {
     this->mode = MODES::PLAYING;
-  } else if (cmd == "test") {
+  } else if (cmd == CMD_TEST) {
     this->test();
     this->mode =  MODES::OFF;
-  } else if (cmd == "br") {
+  } else if (cmd == CMD_BR) {
     this->resetFrameCount();
     this->_max_bright = atoi(payload.c_str());
-  } else if (cmd == "spd") {
+  } else if (cmd == CMD_SPEED) {
     this->resetFrameCount();
-    byte spd = atoi(payload.c_str());
-    if (spd == 0) spd = 1;
-    this->spd = spd;
-  } else if (cmd == "fx") {
+    byte spd = atoi(payload.c_str());    
+    this->spd = 1 + (255 - spd);
+  } else if (cmd == CMD_FX) {
     this->resetFrameCount();
     this->mode = MODES::PLAYING;
     this->fx = atoi(payload.c_str());
-  } else if (cmd == "set") {
+  } else if (cmd == CMD_SETHSL) {
     this->mode = MODES::PAUSED;
     char* pl = (char*) payload.c_str();
   
@@ -120,11 +119,9 @@ void Strip::test(){
 void Strip::setRGBRange(byte r, byte g, byte b, int start, int end) {
   if (start < 0 || end > this->size)
     return;
-
   for (int i = start; i < end; i++ ) {
     bus->SetPixelColor(i , RgbColor(r,g,b));
   }
-
   bus->Show();
 }
 

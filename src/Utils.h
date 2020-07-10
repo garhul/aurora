@@ -13,8 +13,8 @@ namespace Utils {
   bool clearStorage();
   bool storeSettings(settings_t settings);
   settings_t getSettings();
-
-  String getDeviceName();
+  String getInfoJson();
+  String getDeviceId();
 }
 
 #endif

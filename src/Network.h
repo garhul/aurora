@@ -23,6 +23,7 @@ namespace Network {
   void beginAP();
   bool beginST(const char* ssid, const char* pwd);
   void init(String ssid, String pwd);
+  void checkAlive();
 }
 
 #endif

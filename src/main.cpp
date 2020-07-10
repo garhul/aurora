@@ -8,8 +8,8 @@
 #include <Utils.h>
 #include <WebServer.h>
 
-
 Strip* strip;
+settings_t settings = Utils::getSettings();
 
 void messageHandler(String cmd, String payload) {
   Serial.print("|CMD: " + cmd + " |");
@@ -21,13 +21,14 @@ void messageHandler(String cmd, String payload) {
 
 void setup ( void ) {
   Utils::initStorage();
-  settings_t settings = Utils::getSettings();
-  
+    
   if (!isnan(settings.strip_size) && settings.strip_size < MAX_LENGTH ) {
     strip = new Strip(settings.strip_size);
   } else {
     strip = new Strip(1);
   }
+  
+  WiFi.persistent(false);
 
   Serial.begin(115200);
   digitalWrite(2, HIGH); // turn of device led
@@ -43,8 +44,14 @@ void setup ( void ) {
 }
 
 void loop ( void ) {
-  yield();
-  Mosquitto::loop();
-  WebServer::loop();
+  Network::checkAlive();
   strip->loop();
+  yield();
+  if ( !Mosquitto::connected() )  {
+    //try to reconnect
+    Mosquitto::init(settings.broker, settings.topic, messageHandler);
+  } else {
+    Mosquitto::loop();
+    WebServer::loop();
+  }
 }

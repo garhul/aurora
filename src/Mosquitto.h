@@ -6,12 +6,15 @@
 #include <Utils.h>
 #define CONN_RETRIES 3
 
-namespace Mosquitto {
-  
+namespace Mosquitto
+{
+
   //TODO:: add function prototype for message handling
-  void init(const char* broker, const char* topic, void (*handler)(String topic, String payload));
+  void init(const char *broker, const char *topic, void (*handler)(String topic, String payload));
   void handleMessage(String &topic, String &payload);
+  bool connected();
+  void announce();
   void loop();
-}
+} // namespace Mosquitto
 
 #endif

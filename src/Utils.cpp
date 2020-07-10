@@ -25,7 +25,22 @@ namespace Utils {
     return settings;
   }
   
-  String getDeviceName() {
+  String getDeviceId() {
     return String("Aurora_") + String(ESP.getChipId(), HEX);
+  }
+
+  String getInfoJson() {
+    settings_t settings = getSettings();
+    String info = "{\"settings\":{\"ssid\":\"" + String(settings.ssid) + 
+    "\",\"ap_ssid\":\"" + String(settings.ap_ssid) +
+    "\",\"human_name\":\"" + String(settings.human_name) +
+    "\",\"announce_topic\":\"" + String(settings.announce_topic) +
+    "\",\"device_id\":\"" + String(getDeviceId()) +
+    "\",\"broker\":\"" + String(settings.broker) +
+    "\" ,\"topic\":\"" + String(settings.topic) +
+    "\",\"strip_size\":\"" + String(settings.strip_size, DEC) +    
+    "\"}}";
+
+    return info;
   }
 }

@@ -24,7 +24,7 @@ namespace Network {
     #if AP_USE_PWD
       WiFi.softAP(AP_SSID, AP_PWD);
     #else
-      WiFi.softAP(Utils::getDeviceName().c_str());
+      WiFi.softAP(Utils::getDeviceId().c_str());
     #endif
 
     WiFi.printDiag(Serial);
@@ -57,5 +57,12 @@ namespace Network {
     Serial.println (WiFi.localIP());
 
     return true;
+  }
+
+  /**
+   * checks the connection is still alive, if not resets the device
+  */  
+  void checkAlive() {
+    if (!WiFi.isConnected()) ESP.reset();
   }
 }
