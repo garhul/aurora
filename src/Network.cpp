@@ -24,7 +24,8 @@ namespace Network {
     #if AP_USE_PWD
       WiFi.softAP(AP_SSID, AP_PWD);
     #else
-      WiFi.softAP(Utils::getDeviceId().c_str());
+      settings_t st = Utils::getSettings();
+      WiFi.softAP(String(st.ap_ssid));
     #endif
 
     WiFi.printDiag(Serial);

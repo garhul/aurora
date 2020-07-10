@@ -47,9 +47,12 @@ namespace WebServer {
         !server.hasArg("ssid") ||
         !server.hasArg("topic")||
         !server.hasArg("broker") ||
+        !server.hasArg("announce_topic") ||
+        !server.hasArg("human_name") ||
+        !server.hasArg("ap_ssid") ||
         !server.hasArg("strip_size")
       ) {
-      server.send(400, "text/plain", "Invalid params [pass, ssid, topic, broker, strip_size]");
+      server.send(400, "text/plain", "Invalid params one of [pass, ssid, topic, broker, announce_topic, human_name, ap_ssid, strip_size] is missing");
       return;
     }
 
@@ -62,6 +65,9 @@ namespace WebServer {
     server.arg("pass").toCharArray(settings.pass, 32);
     server.arg("topic").toCharArray(settings.topic, 32);
     server.arg("broker").toCharArray(settings.broker, 32);
+    server.arg("announce_topic").toCharArray(settings.announce_topic, 16);
+    server.arg("ap_ssid").toCharArray(settings.ap_ssid, 32);
+    server.arg("human_name").toCharArray(settings.human_name, 32);
     settings.strip_size = server.arg("strip_size").toInt();
 
     if (Utils::storeSettings(settings)) {
