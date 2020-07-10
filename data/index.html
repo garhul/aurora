@@ -1,0 +1,152 @@
+
+<!doctype html>
+<html class="no-js" lang=""><head>
+  <meta charset="utf-8">
+  <title>Firefly Control</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- <link type="text/css" rel="stylesheet" href="main.css"/>   -->
+  <style>
+  body{background:#333;margin:0;padding:0;font-family:arial;text-align:center}body,html{margin:0;padding:0;font-size:6pt}#controls{position:absolute;top:50%;width:100%}#controls>div{padding:.5em}#tabs{width:100%;position:fixed;top:0;height:2em;font-size:2em;background-color:#222}#tabs>div{float:left;width:50%;text-align:center;font-size:2.4em;font-weight:700;cursor:pointer;color:#999;background-color:#222}#t1_v>div{font-size:3em;margin:.5em;color:#ccc}#t1_v>div>span{font-weight:700;color:#83aefd;padding-right:1em}#tabs>div.tb1{float:right}#tabs>div.selected,#tabs>div:hover{background-color:#1e3144;color:#999}.content{padding-top:2em;margin-top:6em;scroll-behavior:smooth;height:100%;overflow:hidden}label{font-size:2em;text-align:left;color:#ccc}button{border:2px solid #666;padding:.4em;background-color:#343434;border-radius:.5em;box-shadow:.2em .2em .2em #222;color:#ccc;cursor:pointer;width:80%;margin:.5em;padding:.25em;font-size:2.4em;font-weight:700;min-height:2em}input[type=range]{-webkit-appearance:none;width:100%}input[type=range]::-webkit-slider-runnable-track{height:.5em;background:#ddd;border:none;border-radius:3px}input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;border:none;height:2em;width:1em;border-radius:10%;background:#555;margin-top:-1em}input[type=range]:focus{outline:0}input[type=range]:focus::-webkit-slider-runnable-track{background:#ccc}.onoffswitch{position:relative;width:4em;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none}.onoffswitch-checkbox{display:none}.onoffswitch-label{display:block;overflow:hidden;cursor:pointer;height:20px;padding:0;line-height:20px;border:0 solid #fff;border-radius:30px;background-color:#9e9e9e}.onoffswitch-label:before{content:"";display:block;width:30px;margin:-5px;background:#fff;position:absolute;top:0;bottom:0;right:31px;border-radius:30px;box-shadow:0 6px 12px 0 #757575}.onoffswitch-checkbox:checked+.onoffswitch-label{background-color:#42a5f5}.onoffswitch-checkbox:checked+.onoffswitch-label,.onoffswitch-checkbox:checked+.onoffswitch-label:before{border-color:#42a5f5}.onoffswitch-checkbox:checked+.onoffswitch-label .onoffswitch-inner{margin-left:0}.onoffswitch-checkbox:checked+.onoffswitch-label:before{right:0;background-color:#2196f3;box-shadow:3px 6px 18px 0 rgba(0,0,0,.2)}
+  </style>
+  </head>
+<body>    
+  <div id="tabs">  
+    <div id="t0">Controls</div>
+    <div id="t1">Settings</div>
+  </div>
+
+  <div id="t0_v" class="content" style="overflow-y:scroll;position:absolute">
+      <div id="btns"></div>
+      <div style="padding:2em;">
+        <label for="s">Brightness</label>
+        <input id="br" type="range" max="200" min="0"/>
+      </div>
+      <div style="padding:2em;">
+        <label for="s">Speed</label>
+        <input id="spd" type="range" max="99" min="1"/>
+      </div>    
+  </div>
+
+  <div id="t1_v" class="content">    
+  </div>
+</div>
+
+<script type="text/javascript">
+ (function () {
+    var ws = null;
+    var tabs = 2;
+         
+    var btns = [
+      { c:"fx", p:"1", txt:"RAINBOW" },
+      { c:"fx", p:"2", txt:"WAVEBOW" }, 
+      { c:"fx", p:"3", txt:"AURORA" }, 
+      { c:"fx", p:"4", txt:"OPPOSITES" },       
+      { c:"fx", p:"5", txt:"HUE_SPLIT" },       
+      { c:"fx", p:"6", txt:"CHASER" },       
+      { c:"fx", p:"7", txt:"WHITE_AURORA" },       
+      { c:"fx", p:"8", txt:"WHITE_CHASER" },       
+      { c:"fx", p:"9", txt:"TRIP" },
+      { c:"off", p:"", txt:"OFF"},
+      { c:"pause", p:"", txt:"PAUSE"},
+      { c:"play", p:"", txt:"PLAY"},
+      { c:"test", p:"", txt:"TEST"}
+    ];
+
+    function _id(id) {
+        return document.getElementById(id);
+    }
+    
+    function render() {
+      var container = _id("btns");
+      
+      btns.forEach(function(b) {
+        var btn = document.createElement('button');
+        btn.setAttribute("cmd", b.c);
+        btn.setAttribute("p", b.p);
+        btn.innerHTML = b.txt;
+
+        btn.addEventListener("click", function(ev) {
+          send(ev.target.getAttribute('cmd'), ev.target.getAttribute('p'));
+        });
+
+        container.append(btn);      
+      });
+
+
+      _id('br').addEventListener('change',function(ev) {        
+        send('br', ev.target.value);
+      });
+
+      _id('spd').addEventListener('change',function(ev) {        
+        send('spd', 100 - ev.target.value);
+      });
+
+      for (var i = 0; i < tabs; i++) {        
+        _id('t' + i).addEventListener('click', function(ev) {          
+          showTab(ev.currentTarget.id);
+        });
+      }
+      
+      var xhr = new XMLHttpRequest();
+      xhr.open("GET", '/info', true)
+      xhr.onreadystatechange = function() { // Call a function when the state changes.
+          if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
+           var rsp = JSON.parse(this.response);
+
+           for(key in rsp.settings) {
+             var el = document.createElement('div');
+             el.innerHTML = `<span>${key}:</span>${rsp.settings[key]}`;
+            _id('t1_v').append(el);
+           }
+           
+          } else {
+            console.log('error on communication :', this);                
+          }
+      }
+      xhr.send();
+    }
+
+    var in_use = false;
+    function send(cmd, payload) {
+      if (in_use) return;
+      in_use = true;
+      //TODO:: disable all buttons
+
+      var xhr = new XMLHttpRequest();
+      xhr.open("POST", '/cmd', true);
+      xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");      
+
+      xhr.onreadystatechange = function() { // Call a function when the state changes.
+          if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
+            console.log(this);
+            in_use = false;
+          } else {
+            console.log('error on communication :', this);     
+            in_use = false;       
+          }
+      }
+      xhr.send(`cmd=${cmd}&payload=${payload}`);
+
+    }
+
+    function showTab(tab) {
+      //hide other tabs
+      for (var i=0; i < tabs; i++){
+        _id('t' + i + '_v').setAttribute("style", "visibility:hidden;display:none");
+        _id('t' + i).setAttribute("style", "");        
+      }
+      //show tab
+      _id(tab + '_v').setAttribute("style", "");
+      _id(tab).setAttribute("style", "color:#fff;background-color:#333");
+    }
+
+
+  
+    render();
+    showTab('t0');
+  })();
+  </script>
+</body>
+</html>

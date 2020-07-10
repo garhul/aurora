@@ -4,15 +4,14 @@
 #include <types.h>
 #include <Utils.h>
 #include <ESP8266WebServer.h>
+#include <FS.h>
 
-namespace WebServer {
-
- 
-  
+namespace WebServer {  
   void init(void (*f)(String,String));
   void loop();
 
   void _cmd();
+  void _control();
   void _info();
   void _setup();
   void _clearCredentials();
