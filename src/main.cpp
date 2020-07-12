@@ -9,7 +9,8 @@
 #include <WebServer.h>
 
 Strip* strip;
-settings_t settings = Utils::getSettings();
+
+bool mqttAtInit = false;
 
 void messageHandler(String cmd, String payload) {
   Serial.print("|CMD: " + cmd + " |");
@@ -21,37 +22,45 @@ void messageHandler(String cmd, String payload) {
 
 void setup ( void ) {
   Utils::initStorage();
-    
-  if (!isnan(settings.strip_size) && settings.strip_size < MAX_LENGTH ) {
-    strip = new Strip(settings.strip_size);
+  
+  delay(3000);
+  Serial.begin(115200);  
+  Serial.println("wtf strip");
+
+  if (!isnan(Utils::settings.strip_size) && Utils::settings.strip_size < MAX_LENGTH ) {
+    strip = new Strip(Utils::settings.strip_size);
   } else {
     strip = new Strip(1);
   }
   
-  WiFi.persistent(false);
-
-  Serial.begin(115200);
-  digitalWrite(2, HIGH); // turn of device led
-
-  SPIFFS.begin();
+  // strip = new Strip(100);
+  // WiFi.persistent(false);
   
-  Network::init(settings.ssid, settings.pass);
+  // digitalWrite(2, HIGH); // turn off device led
+
+  SPIFFS.begin(); // TODO replace with littleFS
+  
+  Network::init(Utils::settings.ssid, Utils::settings.pass);
   
   if (Network::getMode() == Network::MODES::ST)
-    Mosquitto::init(settings.broker, settings.topic, messageHandler);
+    mqttAtInit = Mosquitto::init(Utils::settings.broker, Utils::settings.topic, messageHandler);
   
   WebServer::init(messageHandler);
+ 
+  strip->test();
 }
 
 void loop ( void ) {
-  Network::checkAlive();
-  strip->loop();
   yield();
-  if ( !Mosquitto::connected() )  {
-    //try to reconnect
-    Mosquitto::init(settings.broker, settings.topic, messageHandler);
+  Network::checkAlive();
+  
+  if ( !Mosquitto::connected() && mqttAtInit)  {
+    // try to reconnect only if we could connect during setup
+    // Mosquitto::init(Utils::settings.broker, Utils::settings.topic, messageHandler);
   } else {
     Mosquitto::loop();
     WebServer::loop();
   }
+
+  strip->loop();
 }

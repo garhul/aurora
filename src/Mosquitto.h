@@ -10,11 +10,11 @@ namespace Mosquitto
 {
 
   //TODO:: add function prototype for message handling
-  void init(const char *broker, const char *topic, void (*handler)(String topic, String payload));
+  bool init(const char *broker, const char *topic, void (*handler)(String topic, String payload));
   void handleMessage(String &topic, String &payload);
   bool connected();
   void announce();
-  void loop();
+  void loop();  
 } // namespace Mosquitto
 
 #endif

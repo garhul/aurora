@@ -6,7 +6,7 @@ Strip::Strip(uint16 length) {
   spd = 10;
   mode = MODES::OFF;  
   size = (length < MAX_LENGTH) ? length : MAX_LENGTH;  
-  bus = new NeoPixelBus<NeoGrbFeature, NeoEsp8266Uart1800KbpsMethod>(length);
+  bus = new NeoPixelBusType(length);
   bus->Begin();
 }
 
@@ -44,8 +44,7 @@ void Strip::loop() {
  *  - off | pause | play | test | br (n) | spd (n) | fx (n) | set (h,s,l)
  */
 void Strip::cmd(String cmd, String payload) {
-  Serial.println(cmd);
-  Serial.println(payload);
+  Serial.println(cmd); Serial.println(payload);
 
   if (cmd == CMD_OFF) {
     this->clear();
@@ -67,7 +66,7 @@ void Strip::cmd(String cmd, String payload) {
   } else if (cmd == CMD_FX) {
     this->resetFrameCount();
     this->mode = MODES::PLAYING;
-    this->fx = atoi(payload.c_str());
+    this->fx = atoi(payload.c_str());    
   } else if (cmd == CMD_SETHSL) {
     this->mode = MODES::PAUSED;
     char* pl = (char*) payload.c_str();
@@ -94,6 +93,7 @@ void Strip::test(){
   bus->ClearTo(RgbColor(0,0,0));
   bus->Show();
   for (int i = 0; i < this->size; i++ ) {
+    yield();
     bus->SetPixelColor(i, RgbColor(255,0,0));
     bus->Show();
     delay(TEST_DELAY);
@@ -274,7 +274,6 @@ void Strip::fx_rainbow() {
   }
 }
 
-
 // TODO:: check the effect
 void Strip::fx_wavebow() {
   static byte h_center = 0;
@@ -309,7 +308,6 @@ void Strip::fx_wavebow() {
   }
 }
 
-
 /** Split strip in two with a 180 degree in between hues */
 void Strip::fx_opposites() {
   static byte hue = 0;
@@ -334,7 +332,6 @@ void Strip::fx_opposites() {
 
   }
 }
-
 
 //area efect (hue from 0 + increment on half of the strip)
 void Strip::fx_hue_split() { 
@@ -386,7 +383,6 @@ void Strip::fx_aurora() {
     pixels[n].sat = 255;
   }
  }
-
  
 void Strip::fx_white_aurora() {
   static int dirs[MAX_LENGTH];

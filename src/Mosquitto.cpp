@@ -3,7 +3,7 @@
 
 namespace Mosquitto {
   WiFiClient wcli;
-  MQTTClient client;
+  MQTTClient client;  
   void (*handler)(String topic, String payload);
 
   void handleMessage(String &topic, String &message) {
@@ -23,39 +23,43 @@ namespace Mosquitto {
     client.loop();
   }
 
-  void init(const char* broker, const char* topic, void (*msgHandler)(String topic, String payload)) {
+  bool init(const char* broker, const char* topic, void (*msgHandler)(String topic, String payload)) {
     String clientID  = Utils::getDeviceId();
     byte attempts = 0;
 
     client.begin(broker, wcli);
-    Serial.print("\n Connecting to broker");
-    Serial.println(broker);
+    Serial.println("\n Connecting to broker " + String(broker));    
 
     //TODO:: add timeout
-    while (!client.connect(clientID.c_str()) && attempts < CONN_RETRIES) {
+    // clientID.c_str();
+    while (!client.connect("testa_urora") && attempts < CONN_RETRIES) {
       Serial.print(".");
       attempts++;
       delay(1000);
     }
-
+    
     if (!client.connected()) {
-      Serial.println("Unable to connect to broker");
-      return;
+      
+      Serial.println("Unable to connect to broker");      
+      return false;
     }
+    Mosquitto::loop();
 
-    Serial.print("Subcribed to topic");
-    Serial.println(topic);
-
+    Serial.println("Subcribed to topic " + String(topic));
+    
     handler = msgHandler;
     client.subscribe(topic);
-    client.onMessage(handleMessage);
-
+    client.onMessage(handleMessage);    
+    delay(2500);
     announce();
+    return true;
   }
 
-  void announce() {
-    settings_t st  = Utils::getSettings();    
-    client.publish(String(st.announce_topic), Utils::getInfoJson());
+  void announce() {  
+    // message size must remain small
+    Serial.println("Announcing on " + String(Utils::settings.announce_topic) + "   " + Utils::getAnnounceInfo());    
+
+    client.publish(Utils::settings.announce_topic, Utils::getAnnounceInfo());
   }
 
   bool connected() {

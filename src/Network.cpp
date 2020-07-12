@@ -5,7 +5,7 @@ namespace Network {
 
   void init(String ssid, String pwd) {
     mode = MODES::DISCONNECTED;
-
+    
     if (beginST(ssid.c_str(), pwd.c_str())) {
       mode = MODES::ST;
     } else {
@@ -24,7 +24,7 @@ namespace Network {
     #if AP_USE_PWD
       WiFi.softAP(AP_SSID, AP_PWD);
     #else
-      settings_t st = Utils::getSettings();
+      settings_t st = Utils::getSettings();      
       WiFi.softAP(String(st.ap_ssid));
     #endif
 
