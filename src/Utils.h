@@ -8,6 +8,7 @@
 #include <Arduino.h>
 #include <types.h>
 #include <ESP8266WiFi.h>
+#include <version.h>
 
 namespace Utils {
   extern settings_t settings;
