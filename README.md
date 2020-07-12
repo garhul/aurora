@@ -35,11 +35,11 @@ ap_ssid: the ssid of the access point mode (max 32 chars)
 
 These endpoints are reachable via http requests:
 
-`/setup` via HTTP POST and expecting a body with configuration values.
-`/cmd` via HTTP POST request, expecting a body containing `cmd` and `payload` with the desired command and parameters
-`/clear` via HTTP POST endpoint for clearing eeprom config
-`/info` via any HTTP request responds with a json containing the current config (minus network password) plus the device_name
-`"/"`  via any HTTP request presents the control interface
+- `/setup` via HTTP POST and expecting a body with configuration values.
+- `/cmd` via HTTP POST request, expecting a body containing `cmd` and `payload` with the desired command and parameters
+- `/clear` via HTTP POST endpoint for clearing eeprom config
+- `/info` via any HTTP request responds with a json containing the current config (minus network password) plus the device_name
+- `"/"`  via any HTTP request presents the control interface
 
 
 ## available commands ##
