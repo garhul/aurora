@@ -3,8 +3,19 @@
 #define TEST_DELAY 15
 #define REL_UNIT_BYTE 0.0039f
 #define REL_UNIT_SIZE 1.0f /  STRIP_SIZE
-#define BENCHMARK
+// #define BENCHMARK
 #define MAX_LENGTH 300 //TODO:: temporal solution for dinamic array implementation
+
+#define CMD_FX "fx"
+#define CMD_OFF "off"
+#define CMD_SETHSL "set"
+#define CMD_PLAY "play"
+#define CMD_PAUSE "pause"
+#define CMD_TEST "test"
+#define CMD_BR "br"
+#define CMD_SPEED "spd"
+
+typedef NeoPixelBus<NeoGrbFeature, NeoEsp8266Dma800KbpsMethod> NeoPixelBusType;
 
 typedef struct {
   byte hue;
@@ -49,7 +60,14 @@ class Strip {
     void loop();
 
   private:
-    NeoPixelBus<NeoGrbFeature, NeoEsp8266Uart1800KbpsMethod>* bus;
+  
+    // NeoPixelBus<NeoGrbFeature, NeoEsp8266Dma400KbpsMethod>* bus;
+    // NeoPixelBus<NeoGrbFeature, NeoEsp8266DmaWs2812xMethod>* bus;
+    // NeoPixelBus<NeoGrbFeature, Neo800KbpsMethod>* bus;
+    // NeoPixelBus<NeoGrbFeature, Neo800KbpsMethod>* bus;
+    // NeoPixelBus<NeoGrbFeature, NeoEsp8266AsyncUart0800KbpsMethod>* bus;
+    NeoPixelBus<NeoGrbFeature, NeoEsp8266Dma800KbpsMethod>* bus;
+    
     byte _max_bright;
     uint16 size;
     int frame_index;

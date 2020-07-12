@@ -5,7 +5,7 @@ namespace Network {
 
   void init(String ssid, String pwd) {
     mode = MODES::DISCONNECTED;
-
+    
     if (beginST(ssid.c_str(), pwd.c_str())) {
       mode = MODES::ST;
     } else {
@@ -24,7 +24,8 @@ namespace Network {
     #if AP_USE_PWD
       WiFi.softAP(AP_SSID, AP_PWD);
     #else
-      WiFi.softAP(Utils::getDeviceName().c_str());
+      settings_t st = Utils::getSettings();      
+      WiFi.softAP(String(st.ap_ssid));
     #endif
 
     WiFi.printDiag(Serial);
@@ -57,5 +58,12 @@ namespace Network {
     Serial.println (WiFi.localIP());
 
     return true;
+  }
+
+  /**
+   * checks the connection is still alive, if not resets the device
+  */  
+  void checkAlive() {
+    if (!WiFi.isConnected()) ESP.reset();
   }
 }

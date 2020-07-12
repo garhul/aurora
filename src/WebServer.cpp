@@ -7,7 +7,7 @@ namespace WebServer {
 
   void init(void (*f)(String,String)) {
     server.on("/setup", HTTP_POST, _setup);
-    server.on("/cmd", HTTP_ANY, _cmd);
+    server.on("/cmd", HTTP_POST, _cmd);
     server.on("/clear", HTTP_POST, _clearCredentials); //endpoint for clearing ssid / pwd
     server.on("/info", HTTP_ANY, _info);
     server.on("/", HTTP_ANY, _control);
@@ -47,9 +47,12 @@ namespace WebServer {
         !server.hasArg("ssid") ||
         !server.hasArg("topic")||
         !server.hasArg("broker") ||
+        !server.hasArg("announce_topic") ||
+        !server.hasArg("human_name") ||
+        !server.hasArg("ap_ssid") ||
         !server.hasArg("strip_size")
       ) {
-      server.send(400, "text/plain", "Invalid params [pass, ssid, topic, broker, strip_size]");
+      server.send(400, "text/plain", "Invalid params one of [pass, ssid, topic, broker, announce_topic, human_name, ap_ssid, strip_size] is missing");
       return;
     }
 
@@ -62,6 +65,9 @@ namespace WebServer {
     server.arg("pass").toCharArray(settings.pass, 32);
     server.arg("topic").toCharArray(settings.topic, 32);
     server.arg("broker").toCharArray(settings.broker, 32);
+    server.arg("announce_topic").toCharArray(settings.announce_topic, 16);
+    server.arg("ap_ssid").toCharArray(settings.ap_ssid, 32);
+    server.arg("human_name").toCharArray(settings.human_name, 32);
     settings.strip_size = server.arg("strip_size").toInt();
 
     if (Utils::storeSettings(settings)) {
@@ -92,11 +98,7 @@ namespace WebServer {
   }
 
   void _info() {
-    settings_t settings = Utils::getSettings();
-    String body = "{\"settings\":{\"ssid\":\"" + String(settings.ssid) + "\" ,\"topic\":\"" +
-      String(settings.topic) + "\",\"broker\":\"" + String(settings.broker) + "\",\"strip_size\":\"" + String(settings.strip_size, DEC) + "\"}}";
-
-    server.send(200, "application/json", body);
+    server.send(200, "application/json", Utils::getInfoJson());
   }
 
   void _clearCredentials() {
