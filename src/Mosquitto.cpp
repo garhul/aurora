@@ -24,22 +24,18 @@ namespace Mosquitto {
   }
 
   bool init(const char* broker, const char* topic, void (*msgHandler)(String topic, String payload)) {
-    String clientID  = Utils::getDeviceId();
     byte attempts = 0;
 
     client.begin(broker, wcli);
     Serial.println("\n Connecting to broker " + String(broker));    
 
-    //TODO:: add timeout
-    // clientID.c_str();
-    while (!client.connect("testa_urora") && attempts < CONN_RETRIES) {
+    while (!client.connect(Utils::getDeviceId().c_str()) && attempts < CONN_RETRIES) {
       Serial.print(".");
       attempts++;
       delay(1000);
     }
     
-    if (!client.connected()) {
-      
+    if (!client.connected()) {      
       Serial.println("Unable to connect to broker");      
       return false;
     }

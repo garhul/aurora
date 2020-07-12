@@ -32,16 +32,13 @@ void setup ( void ) {
   } else {
     strip = new Strip(1);
   }
-  
-  // strip = new Strip(100);
-  // WiFi.persistent(false);
-  
-  // digitalWrite(2, HIGH); // turn off device led
+    
+  digitalWrite(2, HIGH); // turn off device led
 
   SPIFFS.begin(); // TODO replace with littleFS
   
   Network::init(Utils::settings.ssid, Utils::settings.pass);
-  
+
   if (Network::getMode() == Network::MODES::ST)
     mqttAtInit = Mosquitto::init(Utils::settings.broker, Utils::settings.topic, messageHandler);
   
@@ -56,7 +53,7 @@ void loop ( void ) {
   
   if ( !Mosquitto::connected() && mqttAtInit)  {
     // try to reconnect only if we could connect during setup
-    // Mosquitto::init(Utils::settings.broker, Utils::settings.topic, messageHandler);
+    Mosquitto::init(Utils::settings.broker, Utils::settings.topic, messageHandler);
   } else {
     Mosquitto::loop();
     WebServer::loop();
