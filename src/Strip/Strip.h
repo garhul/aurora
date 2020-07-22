@@ -15,7 +15,13 @@
 #define CMD_BR "br"
 #define CMD_SPEED "spd"
 
-typedef NeoPixelBus<NeoGrbFeature, NeoEsp8266Dma800KbpsMethod> NeoPixelBusType;
+#define WEMOS_D1
+
+#ifdef WEMOS_D1  
+  typedef NeoPixelBus<NeoGrbFeature, NeoEsp8266AsyncUart1800KbpsMethod> NeoPixelBusType; // USES D4
+#else
+  typedef NeoPixelBus<NeoGrbFeature, NeoEsp8266Dma800KbpsMethod> NeoPixelBusType;   // USES RX pin in nodemcu
+#endif
 
 typedef struct {
   byte hue;
@@ -66,7 +72,7 @@ class Strip {
     // NeoPixelBus<NeoGrbFeature, Neo800KbpsMethod>* bus;
     // NeoPixelBus<NeoGrbFeature, Neo800KbpsMethod>* bus;
     // NeoPixelBus<NeoGrbFeature, NeoEsp8266AsyncUart0800KbpsMethod>* bus;
-    NeoPixelBus<NeoGrbFeature, NeoEsp8266Dma800KbpsMethod>* bus;
+    NeoPixelBusType* bus;
     
     byte _max_bright;
     uint16 size;
