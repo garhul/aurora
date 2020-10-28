@@ -8,13 +8,13 @@
 
 namespace Mosquitto {
 
-// TODO:: add function prototype for message handling
-bool init(const char *broker, const char *topic,
-          void (*handler)(String topic, String payload));
-void handleMessage(String &topic, String &payload);
-bool connected();
-void announce();
-void loop();
+  // TODO:: add function prototype for message handling
+  bool init(const char *broker, const char *topic,
+            void (*handler)(String topic, String payload));
+  void handleMessage(String &topic, String &payload);
+  bool connected();
+  void announce();
+  void loop();
 }  // namespace Mosquitto
 
 #endif

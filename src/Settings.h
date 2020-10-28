@@ -3,6 +3,8 @@
 
 #define SETTINGS_FILE "/settings"
 #define DEFAULTS_HUMAN_NAME "Aurora"
+#define DEFAULTS_SSID "unset"
+#define DEFAULTS_PASS "1234"
 
 #include <Arduino.h>
 #include <ArduinoJson.h>
@@ -11,16 +13,15 @@
 #include <types.h>
 #include <version.h>
 
-namespace Settings
-{
-    extern settings_t settings;
-    void init();
-    bool clear();
-    bool store(settings_t settings);
-    settings_t get();
-    String getInfoJson();
-    String getAnnounceInfo();
-    String getDeviceId();
-} // namespace Settings
+namespace Settings {
+  extern settings_t settings;
+  void init();
+  bool clear();
+  bool store(settings_t settings);
+  settings_t get();
+  String getInfoJson();
+  String getAnnounceInfo();
+  String getDeviceId();
+}  // namespace Settings
 
 #endif
