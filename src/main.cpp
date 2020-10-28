@@ -1,14 +1,14 @@
 #include <Arduino.h>
+#include <FS.h>
+#include <Mosquitto.h>
+#include <Network.h>
+#include <Settings.h>
+#include <Strip/Strip.h>
+#include <WebServer.h>
 #include <defaults.h>
 #include <types.h>
-#include <FS.h>
-#include <Strip/Strip.h>
-#include <Network.h>
-#include <Mosquitto.h>
-#include <Utils.h>
-#include <WebServer.h>
 
-Strip* strip;
+Strip *strip;
 
 bool mqttAtInit = false;
 
@@ -20,40 +20,43 @@ void messageHandler(String cmd, String payload) {
   strip->cmd(cmd, payload);
 }
 
-void setup ( void ) {
-  Utils::initStorage();
-  
+void setup(void) {
+  Settings::init();
   delay(3000);
-  Serial.begin(115200);  
-  Serial.println("wtf strip");
 
-  if (!isnan(Utils::settings.strip_size) && Utils::settings.strip_size < MAX_LENGTH ) {
-    strip = new Strip(Utils::settings.strip_size);
+  Serial.begin(115200);
+  Serial.println("Init");
+
+  if (!isnan(Settings::settings.strip_size) &&
+      Settings::settings.strip_size < MAX_LENGTH) {
+    strip = new Strip(Settings::settings.strip_size);
   } else {
     strip = new Strip(1);
   }
-    
-  digitalWrite(2, HIGH); // turn off device led
 
-  SPIFFS.begin(); // TODO replace with littleFS
-  
-  Network::init(Utils::settings.ssid, Utils::settings.pass);
+  digitalWrite(2, HIGH);  // turn off device led
 
-  if (Network::getMode() == Network::MODES::ST)
-    mqttAtInit = Mosquitto::init(Utils::settings.broker, Utils::settings.topic, messageHandler);
-  
+  SPIFFS.begin();  // TODO replace with littleFS
+
+  Network::init(Settings::settings.ssid, Settings::settings.pass);
+
+  if (Network::getMode() == Network::MODES::ST) {
+    mqttAtInit = Mosquitto::init(Settings::settings.broker,
+                                 Settings::settings.topic, messageHandler);
+  }
   WebServer::init(messageHandler);
- 
+
   strip->test();
 }
 
-void loop ( void ) {
+void loop(void) {
   yield();
   Network::checkAlive();
-  
-  if ( !Mosquitto::connected() && mqttAtInit)  {
+
+  if (!Mosquitto::connected() && mqttAtInit) {
     // try to reconnect only if we could connect during setup
-    Mosquitto::init(Utils::settings.broker, Utils::settings.topic, messageHandler);
+    Mosquitto::init(Settings::settings.broker, Settings::settings.topic,
+                    messageHandler);
   } else {
     Mosquitto::loop();
     WebServer::loop();
