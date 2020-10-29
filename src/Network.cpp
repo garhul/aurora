@@ -61,6 +61,8 @@ namespace Network {
    * checks the connection is still alive, if not resets the device
    */
   void checkAlive() {
-    if (!WiFi.isConnected()) ESP.reset();
+    if (!WiFi.isConnected() && WiFi.getMode() != WIFI_AP) {
+      ESP.reset();
+    }
   }
 }  // namespace Network
