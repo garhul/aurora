@@ -4,7 +4,7 @@ This is an ever ongoing project to control ws2812, ws2811, ws2813 led light stri
 having some pre programmed effects and animations while providing a simple interface both via mqtt and http.
 
 Devices work with and without connection to a wireless network, when not connected to a wireless network commands can
-be issued to the device by connecting to it via it's own ssid (Aurora_{chip_id})
+be issued to the device by connecting to it via it's own ssid 'Aurora_{chip_id}' & password '12345678'
 
 Once the device is configured its configuration is stored in eeeprom memory and can be changed via the `/setup` endpoint
 
@@ -12,7 +12,6 @@ Once the device is configured its configuration is stored in eeeprom memory and 
 
 in `src/strip/strip.h` you can set the define for WEMOS_D1 and the configuration for neopixelbus library.
 on WEMOS_D1 I use pin D4 (GPIO2) for connecting the data pin of ws2812 strips whereas in nodeMCU devices I use pin RX (GPIO3)
-
 ## firmware upload ##
 Firmware must be upload with platformio upload
 

@@ -4,7 +4,7 @@
 #define SETTINGS_FILE "/settings"
 #define DEFAULTS_HUMAN_NAME "Aurora"
 #define DEFAULTS_SSID "unset"
-#define DEFAULTS_PASS "1234"
+#define DEFAULTS_PASS "12345678"
 
 #include <Arduino.h>
 #include <ArduinoJson.h>

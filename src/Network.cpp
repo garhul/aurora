@@ -2,15 +2,22 @@
 
 namespace Network {
   byte mode;
+  boolean isDefaultSsid;
+  boolean isDefaultPass;
 
   void init(String ssid, String pwd) {
     mode = MODES::DISCONNECTED;
+    isDefaultSsid = strcmp(ssid.c_str(), DEFAULTS_SSID) == 0;
+    isDefaultPass = strcmp(pwd.c_str(), DEFAULTS_PASS) == 0;
+
+    if (isDefaultSsid && isDefaultPass) {
+      mode = MODES::AP;
+      beginAP();
+      return;
+    }
 
     if (beginST(ssid.c_str(), pwd.c_str())) {
       mode = MODES::ST;
-    } else {
-      mode = MODES::AP;
-      beginAP();
     }
   }
 
@@ -18,14 +25,7 @@ namespace Network {
 
   void beginAP() {
     WiFi.mode(WIFI_AP);
-
-#if AP_USE_PWD
-    WiFi.softAP(AP_SSID, AP_PWD);
-#else
-    settings_t st = Settings::get();
-    WiFi.softAP(String(st.ap_ssid));
-#endif
-
+    WiFi.softAP(Settings::settings.ap_ssid, Settings::settings.pass);
     WiFi.printDiag(Serial);
     Serial.println(WiFi.softAPIP());
   }
