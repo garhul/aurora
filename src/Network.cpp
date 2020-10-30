@@ -5,7 +5,8 @@ namespace Network {
 
   void init(String ssid, String pwd) {
     mode = MODES::DISCONNECTED;
-    
+    WiFi.setSleepMode(WIFI_NONE_SLEEP);
+
     if (beginST(ssid.c_str(), pwd.c_str())) {
       mode = MODES::ST;
     } else {
