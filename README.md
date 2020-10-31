@@ -17,8 +17,8 @@ on WEMOS_D1 I use pin D4 (GPIO2) for connecting the data pin of ws2812 strips wh
 Firmware must be upload with platformio upload
 
 
-## SPIFSS upload ##
-Spifss data contains the web interface.
+## LittleFS upload ##
+LittleFS data contains the web interface, and the filesystem is used to store the settings
 use platformio command `pio run -t uploadfs` to upload contents of data directory to flash memory
 
 ## setup ##
@@ -30,9 +30,11 @@ pass: the network password (max 32 chars)
 ssid: the network ssid (max 32 chars)
 topic: the mqtt topic to listen for commands (max 32 chars)
 broker: the address of the mqtt broker (max 32 chars)
-announce_topic: the topic where to anounce once connected (max 16 chars)
+announce_topic: the topic where to anounce once connected (max 32 chars)
 human_name: the human readable name of the device (max 32 chars)
 ap_ssid: the ssid of the access point mode (max 32 chars)
+strip_size: the length of the led strip to control
+use_mqtt: enables the usage of mqtt
 ```
 
 
