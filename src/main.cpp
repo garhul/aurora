@@ -1,16 +1,12 @@
 #include <Arduino.h>
-#include <defaults.h>
-#include <types.h>
 #include <FS.h>
-#include <Strip/Strip.h>
-#include <Network.h>
 #include <Mosquitto.h>
-#include <Utils.h>
+#include <Network.h>
+#include <Settings.h>
+#include <Strip/Strip.h>
 #include <WebServer.h>
 
 Strip* strip;
-
-bool mqttAtInit = false;
 
 void messageHandler(String cmd, String payload) {
   Serial.print("|CMD: " + cmd + " |");
@@ -20,44 +16,41 @@ void messageHandler(String cmd, String payload) {
   strip->cmd(cmd, payload);
 }
 
-void setup ( void ) {
-  Utils::initStorage();
-  
-  delay(3000);
-  Serial.begin(115200);  
-  Serial.println("wtf strip");
-
-  if (!isnan(Utils::settings.strip_size) && Utils::settings.strip_size < MAX_LENGTH ) {
-    strip = new Strip(Utils::settings.strip_size);
-  } else {
-    strip = new Strip(1);
-  }
-    
+void setup(void) {
+  Serial.begin(115200);
+  Settings::init();
   digitalWrite(2, HIGH); // turn off device led
 
-  SPIFFS.begin(); // TODO replace with littleFS
-  
-  Network::init(Utils::settings.ssid, Utils::settings.pass);
+  Network::init();
+  if (Network::getMode() == Network::MODES::ST) {
+    if (Settings::use_mqtt && Mosquitto::init(messageHandler)) {
+      Mosquitto::announce();
+    };
+  }
+  strip = new Strip(Settings::strip_size);
 
-  if (Network::getMode() == Network::MODES::ST)
-    mqttAtInit = Mosquitto::init(Utils::settings.broker, Utils::settings.topic, messageHandler);
-  
   WebServer::init(messageHandler);
- 
   strip->test();
 }
 
-void loop ( void ) {
+void loop(void) {
+  static unsigned long lastCheck = 0;
   yield();
-  Network::checkAlive();
-  
-  if ( !Mosquitto::connected() && mqttAtInit)  {
-    // try to reconnect only if we could connect during setup
-    Mosquitto::init(Utils::settings.broker, Utils::settings.topic, messageHandler);
-  } else {
-    Mosquitto::loop();
-    WebServer::loop();
+
+  if (millis() - lastCheck > WIFI_CHECK_PERIOD) {
+    Network::checkAlive();
+    lastCheck = millis();
   }
 
+  if (Settings::use_mqtt) {
+    if (Mosquitto::connected()) {
+      Mosquitto::loop();
+    }
+    else {
+      Mosquitto::init(messageHandler);
+    }
+  }
+
+  WebServer::loop();
   strip->loop();
 }

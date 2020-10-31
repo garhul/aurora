@@ -1,2 +1,4 @@
 .pio
 .vscode
+versioning
+src/version.h
