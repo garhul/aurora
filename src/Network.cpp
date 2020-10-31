@@ -3,49 +3,49 @@
 namespace Network {
   byte mode;
 
-  void init(String ssid, String pwd) {
+  void init() {
     mode = MODES::DISCONNECTED;
     WiFi.setSleepMode(WIFI_NONE_SLEEP);
 
-    if (beginST(ssid.c_str(), pwd.c_str())) {
+    if (beginST()) {
       mode = MODES::ST;
-    } else {
+    }
+    else {
       mode = MODES::AP;
       beginAP();
     }
   }
- 
+
   byte getMode() {
-   return mode;
+    return mode;
   }
 
   void beginAP() {
     WiFi.mode(WIFI_AP);
 
-    #if AP_USE_PWD
-      WiFi.softAP(AP_SSID, AP_PWD);
-    #else
-      settings_t st = Utils::getSettings();      
-      WiFi.softAP(String(st.ap_ssid));
-    #endif
+#if AP_USE_PWD
+    WiFi.softAP(AP_SSID, AP_PWD);
+#else
+    WiFi.softAP(String(Settings::ap_ssid));
+#endif
 
     WiFi.printDiag(Serial);
     Serial.println(WiFi.softAPIP());
   }
 
-  bool beginST(const char* ssid, const char* pwd) {  
+  bool beginST() {
     int attempts = 0;
 
     WiFi.mode(WIFI_STA);
-  
-    // disconnect from any previously connected network (open networks?) 
-    if (WiFi.status() == WL_CONNECTED) {    
+
+    // disconnect from any previously connected network (open networks?)
+    if (WiFi.status() == WL_CONNECTED) {
       WiFi.disconnect(false);
       delay(2000);
     }
 
     while (WiFi.status() != WL_CONNECTED && attempts < ST_RETRIES) {
-      WiFi.begin (ssid, pwd);
+      WiFi.begin(Settings::ssid, Settings::pass);
       attempts++;
       delay(ST_CONN_TIMEOUT);
     }
@@ -56,14 +56,14 @@ namespace Network {
 
     Serial.println("Station startup successful");
     WiFi.printDiag(Serial);
-    Serial.println (WiFi.localIP());
+    Serial.println(WiFi.localIP());
 
     return true;
   }
 
   /**
    * checks the connection is still alive, if not resets the device
-  */  
+  */
   void checkAlive() {
     if (!WiFi.isConnected()) ESP.reset();
   }
