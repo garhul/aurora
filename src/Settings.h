@@ -7,25 +7,13 @@
 #define AP_PWD "1234"
 #define DEFAULT_STRIP_SIZE 1
 
-#define WIFI_CHECK_PERIOD 60000 // Check wifi connection evert 60 seconds
+#define WIFI_CHECK_PERIOD 600000 // Check wifi connection evert 60 seconds
 
 #include <Arduino.h>
 #include <ArduinoJson.h>
 #include <ESP8266WiFi.h>
 #include <LittleFS.h>
 #include <version.h>
-
-typedef struct {
-  char ssid[32];
-  char pass[32];
-  char topic[32];
-  char announce_topic[32];
-  char human_name[32];
-  char broker[32];
-  char ap_ssid[32];
-  bool use_mqtt;
-  unsigned int strip_size;
-} settings_t;
 
 namespace Settings {
   extern char ssid[32];

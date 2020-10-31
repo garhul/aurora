@@ -37,7 +37,7 @@ void loop(void) {
   static unsigned long lastCheck = 0;
   yield();
 
-  if (millis() - lastCheck > 5000 /*WIFI_CHECK_PERIOD*/) { // check every 5 seconds
+  if (millis() - lastCheck > WIFI_CHECK_PERIOD) {
     Network::checkAlive();
     lastCheck = millis();
   }
