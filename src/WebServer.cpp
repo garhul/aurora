@@ -101,7 +101,7 @@ namespace WebServer {
   }
 
   void _info() {
-    _respond(200, Settings::getInfoJson().c_str());
+    server.send(200, "application/json", Settings::getInfoJson().c_str());
   }
 
   void _clearCredentials() {

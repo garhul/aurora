@@ -68,14 +68,13 @@ namespace Settings {
   }
 
   void _loadDefaults() {
-    Serial.println("Settings file not found, using defaults");
     strcpy(ssid, "");
     strcpy(broker, "");
     strcpy(human_name, DEFAULT_HUMAN_NAME);
     strcpy(pass, "");
     strcpy(topic, "");
     strcpy(announce_topic, "");
-    strcpy(ap_ssid, DEFAULT_HUMAN_NAME);
+    strcpy(ap_ssid, (String(DEFAULT_HUMAN_NAME) + "_" + String(ESP.getChipId(), HEX)).c_str());
     strip_size = DEFAULT_STRIP_SIZE;
     use_mqtt = false;
   }
@@ -86,7 +85,7 @@ namespace Settings {
     if (LittleFS.exists(SETTINGS_FILE)) {
       File sf = LittleFS.open(SETTINGS_FILE, "r+");
       if (!sf) {
-        Serial.println("File open failed");
+        Serial.println("Settings file open failed");
         return;
       }
 
@@ -109,6 +108,10 @@ namespace Settings {
       strip_size = doc["strip_size"];
       use_mqtt = doc["use_mqtt"];
     }
+    else {
+      Serial.println("Settings file not found, using defaults");
+    }
+    Serial.println("Loadded settings - info: " + getInfoJson());
   }
 
   String getDeviceId() {

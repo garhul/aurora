@@ -7,6 +7,8 @@
 #define AP_PWD "1234"
 #define DEFAULT_STRIP_SIZE 1
 
+#define WIFI_CHECK_PERIOD 60000 // Check wifi connection evert 60 seconds
+
 #include <Arduino.h>
 #include <ArduinoJson.h>
 #include <ESP8266WiFi.h>

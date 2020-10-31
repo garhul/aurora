@@ -37,8 +37,8 @@ namespace Network {
     int attempts = 0;
 
     WiFi.mode(WIFI_STA);
+    WiFi.disconnect(true); //remove any old wifi config
 
-    // disconnect from any previously connected network (open networks?)
     if (WiFi.status() == WL_CONNECTED) {
       WiFi.disconnect(false);
       delay(2000);
@@ -65,6 +65,9 @@ namespace Network {
    * checks the connection is still alive, if not resets the device
   */
   void checkAlive() {
-    if (!WiFi.isConnected()) ESP.reset();
+    if (mode == MODES::ST && !WiFi.isConnected()) {
+      Serial.println("Wifi disconnected, attempting to reconnect");
+      init();
+    }
   }
 }
