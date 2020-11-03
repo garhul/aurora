@@ -46,8 +46,8 @@ enum FX {
   WHITE_AURORA,
   WHITE_CHASER,
   TRIP,
-  COUNT,
   FIRE,
+  COUNT
 };
 
 class Strip {
