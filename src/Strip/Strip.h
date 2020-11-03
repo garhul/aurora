@@ -47,6 +47,7 @@ enum FX {
   WHITE_CHASER,
   TRIP,
   COUNT,
+  FIRE,
 };
 
 class Strip {
@@ -92,5 +93,6 @@ private:
   void fx_white_aurora();
   void fx_white_chaser();
   void fx_trip();
+  void fx_fire();
 };
 

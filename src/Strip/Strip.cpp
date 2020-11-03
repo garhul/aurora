@@ -421,6 +421,49 @@ void Strip::fx_white_aurora() {
   }
 }
 
+void  Strip::fx_fire() {
+  int sparkWidthLeds = 3;
+  int mapColorArrRedBase[10][3] = {
+      {0, 0, 0},
+      {0, 0, 0},
+      {255, 30, 0},
+      {255, 40, 0},
+      {255, 50, 0},
+      {255, 60, 0},
+      {255, 80, 0},
+      {255, 80, 0},
+      {255, 100, 0},
+      {255, 180, 0}
+  };
+  int rCol = rand() % 6; // match array length in here
+  int randomAddress = rand() % this->size;
+
+  // sparks:
+  if (randomAddress < sparkWidthLeds) {
+    randomAddress = sparkWidthLeds;
+  }
+  for (int i = 0; i < sparkWidthLeds; i++) {
+    bus->SetPixelColor(randomAddress + i, RgbColor(mapColorArrRedBase[rCol][0], mapColorArrRedBase[rCol][1], mapColorArrRedBase[rCol][2]));
+    pixels[randomAddress + i].br = byte(random(this->_max_bright));
+  }
+
+  // middle flame fire:
+
+  int middle = this->size / 2; // 30
+  int flameWidthLeds = 15;
+  int px = 0;
+  // fix middle into mostly yellow
+  bus->SetPixelColor(middle, RgbColor(255, 220, 0));
+  bus->SetPixelColor(middle - 3, RgbColor(255, 220, 0));
+  bus->SetPixelColor(middle + 3, RgbColor(255, 220, 0));
+
+  for (int i = 0; i < flameWidthLeds; i++) {
+    px = i % 2 ? middle - i : middle + i;
+    bus->SetPixelColor(px, RgbColor(mapColorArrRedBase[rCol][0], mapColorArrRedBase[rCol][1], mapColorArrRedBase[rCol][2]));
+  }
+
+}
+
 void Strip::resetFrameCount() {
   frame_index = 0;
 }
@@ -462,7 +505,14 @@ void Strip::nextFrame(char eff_index) {
   case FX::TRIP:
     this->fx_trip();
     break;
+
+  case FX::FIRE:
+    this->fx_fire();
+    bus->Show();
+    frame_index++;
+    return;
   }
+
   byte n = 0;
   for (n = 0; n < this->size; n++) {
     bus->SetPixelColor(n, RgbColor(
