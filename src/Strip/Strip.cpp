@@ -41,7 +41,7 @@ void Strip::loop() {
 
 /**
  * CMD :
- *  - off | pause | play | test | br (n) | spd (n) | fx (n) | set (h,s,l)
+ *  - off | pause | play | test | br (n) | spd (n) | fx (n) | set (h,s,l) | setRgb (r,g,b)
  */
 void Strip::cmd(String cmd, String payload) {
 
@@ -88,7 +88,15 @@ void Strip::cmd(String cmd, String payload) {
     Serial.println(l);
     Serial.println(this->size);
     this->setHSLRange(h, s, l, 0, this->size);
-  };
+  }
+  else if (cmd == CMD_SETRGB) {
+    this->mode = MODES::PAUSED;
+    char* pl = (char*) payload.c_str();
+    byte r = atoi(strtok_r(NULL, " ", &pl));
+    byte g = atoi(strtok_r(NULL, " ", &pl));
+    byte b = atoi(strtok_r(NULL, " ", &pl));
+    this->setRGBRange(r, g, b, 0, this->size);
+  }
 }
 
 void Strip::setMaxBrightness(byte b) {
