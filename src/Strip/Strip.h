@@ -9,6 +9,7 @@
 #define CMD_FX "fx"
 #define CMD_OFF "off"
 #define CMD_SETHSL "setHsl"
+#define CMD_SETRGB "setRgb"
 #define CMD_PLAY "play"
 #define CMD_PAUSE "pause"
 #define CMD_TEST "test"
