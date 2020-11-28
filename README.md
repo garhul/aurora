@@ -56,7 +56,7 @@ These endpoints are reachable via http requests:
 - `off` turns the light strip off
 - `pause` pauses current effect
 - `play` continues playing of selected effect
-- `set $1` sets the strip hsl based on $1 being 3 chars each corresponding to hue sat and lightness
+- `setHsl $1` fill the strip with HSL color based on $1 corresponding to hue sat and lightness eg. `360 100 30` this will fill the strip with red at 30% lightness
 - `test` tests the strip connection by turning a led at a time
 
 In order to send these commands via MQTT they must be wrapped in a json format:
