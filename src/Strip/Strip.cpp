@@ -33,7 +33,7 @@ void Strip::loop() {
 
   counter++;
 #endif
-//TODO:: benchmark frame rate
+  //TODO:: benchmark frame rate
   if (mode == MODES::PLAYING)
     nextFrame(this->fx);
   delay(20);
@@ -41,7 +41,7 @@ void Strip::loop() {
 
 /**
  * CMD :
- *  - off | pause | play | test | br (n) | spd (n) | fx (n) | set (h,s,l)
+ *  - off | pause | play | test | br (n) | spd (n) | fx (n) | set (h,s,l) | setRgb (r,g,b)
  */
 void Strip::cmd(String cmd, String payload) {
 
@@ -88,7 +88,19 @@ void Strip::cmd(String cmd, String payload) {
     Serial.println(l);
     Serial.println(this->size);
     this->setHSLRange(h, s, l, 0, this->size);
-  };
+  }
+  else if (cmd == CMD_SETRGB) {
+    this->mode = MODES::PAUSED;
+    char* pl = (char*) payload.c_str();
+
+    uint8_t r = atoi(strtok_r(NULL, " ", &pl));
+    uint8_t g = atoi(strtok_r(NULL, " ", &pl));
+    uint8_t b = atoi(strtok_r(NULL, " ", &pl));
+
+    Serial.printf("setRgb: %u %u %u\n", r, g, b);
+
+    this->fillRGB(r, g, b);
+  }
 }
 
 void Strip::setMaxBrightness(byte b) {
