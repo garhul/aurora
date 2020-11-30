@@ -4,9 +4,10 @@
 #include <Settings.h>
 #include <ESP8266WebServer.h>
 #include <FS.h>
+#include <Strip.h>
 
 namespace WebServer {
-  void init(void (*f)(String , String));
+  void init(Strip* s);
   void loop();
 
   void _cmd();
@@ -14,6 +15,7 @@ namespace WebServer {
   void _info();
   void _setup();
   void _clearCredentials();
+  void _getState();
 }
 
 #endif

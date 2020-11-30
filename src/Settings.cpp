@@ -115,7 +115,7 @@ namespace Settings {
   }
 
   String getDeviceId() {
-    return String(human_name) + "_" + String(ESP.getChipId(), HEX);
+    return "Aurora_" + String(ESP.getChipId(), HEX);
   }
 
   String getAnnounceInfo() {
