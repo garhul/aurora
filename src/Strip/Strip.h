@@ -8,7 +8,7 @@
 
 #define CMD_FX "fx"
 #define CMD_OFF "off"
-#define CMD_SETHSL "set"
+#define CMD_SETHSL "setHsl"
 #define CMD_SETRGB "setRgb"
 #define CMD_PLAY "play"
 #define CMD_PAUSE "pause"
@@ -55,7 +55,7 @@ public:
   Strip(uint16 length);
   void test();
   void setRGBRange(byte r, byte g, byte b, int start, int end);
-  void setHSLRange(byte h, byte s, byte l, int start, int end);
+  void setHSLRange(int h, uint8_t s, uint8_t l, int start, int end);
   void clear();
 
   void fillRGB(uint8_t r, uint8_t g, uint8_t b);
