@@ -46,6 +46,7 @@ These endpoints are reachable via http requests:
 - `/cmd` via HTTP POST request, expecting a body containing `cmd` and `payload` with the desired command and parameters
 - `/clear` via HTTP POST endpoint for clearing eeprom config
 - `/info` via any HTTP request responds with a json containing the current config (minus network password) plus the device_name
+- `/state` via any HTTP request responds with a json containing the current device  [state](#state)
 - `"/"`  via any HTTP request presents the control interface
 
 
@@ -63,3 +64,25 @@ These endpoints are reachable via http requests:
 In order to send these commands via MQTT they must be wrapped in a json format:
 `{"cmd":"set","payload":"xyz"}`
 
+Upon receiving a command the device respond with an [state](#state) update
+
+
+### <a name="state">device state</a>
+
+State is a representation of the current state of the device, if it's playing an animation, which one, its current brightness and speed settings.
+The state is published in the device's mosquitto topic suffixed with `/state` and it looks like this json:
+```
+{
+    "br": 25,
+    "spd": 10,
+    "fx": 255,
+    "mode": 0,
+    "size": 100
+}
+```
+where:
+- `br` is the current max brightness (integer 0 - 255)
+- `spd` is the current animation speed (integer 0 -255)
+- `fx` is the currently selected animation
+- `mode` determines if we're playing or paused or off (0: OFF, 1:  PAUSED, 2: PLAYING)
+- `size` is the currently configured length of our strip
