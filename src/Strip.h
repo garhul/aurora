@@ -12,8 +12,8 @@
 
 #define CMD_FX "fx"
 #define CMD_OFF "off"
-#define CMD_SETHSL "set"
-#define CMD_SETRGB "setRgb"
+#define CMD_SETHSL "setHSL"
+#define CMD_SETRGB "setRGB"
 #define CMD_PLAY "play"
 #define CMD_PAUSE "pause"
 #define CMD_TEST "test"
