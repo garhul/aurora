@@ -93,6 +93,7 @@ private:
   uint16 size;
   uint16 frame_index;
   uint8 spd;
+  uint8 spd_delay;
   uint8 fx;
   uint8 mode;
   leds pixels[MAX_LENGTH];

@@ -16,6 +16,7 @@ namespace WebServer {
   void _setup();
   void _clearCredentials();
   void _getState();
+  void _serveFile(const char* filepath, const char* doctype);
 }
 
 #endif

@@ -3,7 +3,8 @@
 Strip::Strip(uint16 length) {
   _max_bright = 25;
   frame_index = 0;
-  spd = 10;
+  spd = 250;
+  spd_delay = 1 + (255 - spd);
   mode = MODES::OFF;
   size = (length < MAX_LENGTH) ? length : MAX_LENGTH;
   bus = new NeoPixelBusType(length);
@@ -36,7 +37,7 @@ void Strip::loop() {
   //TODO:: benchmark frame rate
   if (mode == MODES::PLAYING)
     nextFrame(this->fx);
-  delay(20);
+  delay(15);
 }
 
 
@@ -83,7 +84,8 @@ void Strip::cmd(String cmd, String payload) {
   else if (cmd == CMD_SPEED) {
     this->resetFrameCount();
     byte spd = atoi(payload.c_str());
-    this->spd = 1 + (255 - spd);
+    this->spd = spd;
+    this->spd_delay = 1 + (255 - spd);
   }
   else if (cmd == CMD_FX) {
     this->resetFrameCount();
@@ -218,7 +220,7 @@ void Strip::fx_chaser() {
 
 
 
-  if (frame_index % spd == 0) {
+  if (frame_index % this->spd_delay == 0) {
     adv = ++adv % this->size;
     if (adv == 0) hue += 8;
 
@@ -256,7 +258,7 @@ void Strip::fx_white_chaser() {
   }
 
 
-  if (frame_index % spd == 0) {
+  if (frame_index % this->spd_delay == 0) {
     tmp = pixels[0];
     for (n = 0; n < this->size - 1; n++) {
       pixels[n] = pixels[n + 1];
@@ -268,7 +270,6 @@ void Strip::fx_white_chaser() {
 void Strip::fx_trip() {
   static byte chaser_len = 10; // 7 pixels length
   static byte space = 20;
-  byte br = 0;
   byte idx = 0;
   byte n = 0;
   leds tmp;
@@ -289,7 +290,7 @@ void Strip::fx_trip() {
   }
 
 
-  if (frame_index % spd == 0) {
+  if (frame_index % this->spd_delay == 0) {
     tmp = pixels[0];
     for (n = 0; n < this->size - 1; n++) {
       pixels[n].br = pixels[n + 1].br;
@@ -302,7 +303,7 @@ void Strip::fx_trip() {
 void Strip::fx_rainbow() {
   static byte hue_inc = 0;
 
-  if (frame_index % spd == 0) {
+  if (frame_index % this->spd_delay == 0) {
     hue_inc++;
   }
 
@@ -336,11 +337,11 @@ void Strip::fx_wavebow() {
     pixels[n].br = (br_center + n) * ((float) _max_bright / this->size);
   }
 
-  if (frame_index % spd == 0) {
+  if (frame_index % this->spd_delay == 0) {
     h_center++;
   }
 
-  if (frame_index % spd == 0) {
+  if (frame_index % this->spd_delay == 0) {
     if (br_center == this->size || br_center == 0) {
       dir = dir * -1;
     }
@@ -352,12 +353,11 @@ void Strip::fx_wavebow() {
 void Strip::fx_opposites() {
   static byte hue = 0;
 
-  if (frame_index % spd == 0) {
+  if (frame_index % this->spd_delay == 0) {
     hue++;
   }
 
   byte n = 0;
-  byte br = 0;
 
   for (n = 0; n < this->size; n++) {
     if (n < this->size / 2) {
@@ -391,7 +391,7 @@ void Strip::fx_hue_split() {
     pixels[n].sat = 255;
   }
 
-  if (frame_index % spd == 0) {
+  if (frame_index % this->spd_delay == 0) {
     h++;
   }
 
@@ -407,12 +407,12 @@ void Strip::fx_aurora() {
     }
   }
 
-  if (frame_index % spd == 0) {
+  if (frame_index % this->spd_delay == 0) {
     hue_inc++;
   }
 
   for (int n = 0; n < this->size; n++) {
-    if (frame_index % spd == 0) {
+    if (frame_index % this->spd_delay == 0) {
       if (pixels[n].br == _max_bright) { //we should start reducing
         dirs[n] = -1;
       }
@@ -437,7 +437,7 @@ void Strip::fx_white_aurora() {
   }
 
   for (int n = 0; n < this->size; n++) {
-    if (frame_index % spd == 0) {
+    if (frame_index % this->spd_delay == 0) {
       if (pixels[n].br == _max_bright) { //we should start reducing
         dirs[n] = -1;
       }
