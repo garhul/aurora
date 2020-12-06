@@ -3,17 +3,15 @@
 #include <Mosquitto.h>
 #include <Network.h>
 #include <Settings.h>
-#include <Strip/Strip.h>
+#include <Strip.h>
 #include <WebServer.h>
 
 Strip* strip;
 
-void messageHandler(String cmd, String payload) {
-  Serial.print("|CMD: " + cmd + " |");
-  Serial.print("|Payload:" + payload + " |");
-  Serial.println("");
-
-  strip->cmd(cmd, payload);
+void onStripStateChange(t_state st) {
+  if (Settings::use_mqtt) {
+    Mosquitto::updateState(st);
+  }
 }
 
 void setup(void) {
@@ -23,13 +21,14 @@ void setup(void) {
 
   Network::init();
   if (Network::getMode() == Network::MODES::ST) {
-    if (Settings::use_mqtt && Mosquitto::init(messageHandler)) {
+    if (Settings::use_mqtt && Mosquitto::init(strip)) {
       Mosquitto::announce();
     };
   }
   strip = new Strip(Settings::strip_size);
+  strip->setStateHandler(onStripStateChange);
 
-  WebServer::init(messageHandler);
+  WebServer::init(strip);
   strip->test();
 }
 
@@ -47,7 +46,7 @@ void loop(void) {
       Mosquitto::loop();
     }
     else {
-      Mosquitto::init(messageHandler);
+      Mosquitto::init(strip);
     }
   }
 

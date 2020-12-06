@@ -1,4 +1,4 @@
-#include <Strip/Strip.h>
+#include <Strip.h>
 
 Strip::Strip(uint16 length) {
   _max_bright = 25;
@@ -39,12 +39,29 @@ void Strip::loop() {
   delay(20);
 }
 
+
+void Strip::setStateHandler(void(*fn)(t_state st)) {
+  this->stateHandler = fn;
+}
+
+t_state Strip::getState() {
+  return {
+    this->spd,
+    this->_max_bright,
+    this->mode,
+    this->size,
+    this->fx
+  };
+}
+
 /**
  * CMD :
  *  - off | pause | play | test | br (n) | spd (n) | fx (n) | set (h,s,l) | setRgb (r,g,b)
  */
 void Strip::cmd(String cmd, String payload) {
-
+  Serial.print(cmd);
+  Serial.print(payload);
+  Serial.println();
   if (cmd == CMD_OFF) {
     this->clear();
     this->mode = MODES::OFF;
@@ -77,10 +94,16 @@ void Strip::cmd(String cmd, String payload) {
     this->mode = MODES::PAUSED;
     char* pl = (char*) payload.c_str();
 
-    int h = atoi(strtok_r(NULL, " ", &pl));
-    uint8_t s = atoi(strtok_r(NULL, " ", &pl));
-    uint8_t l = atoi(strtok_r(NULL, " ", &pl));
+    byte h = atoi(strtok_r(NULL, " ", &pl));
+    byte s = atoi(strtok_r(NULL, " ", &pl));
+    byte l = atoi(strtok_r(NULL, " ", &pl));
 
+    Serial.print(h);
+    Serial.print(" ");
+    Serial.print(s);
+    Serial.print(" ");
+    Serial.println(l);
+    Serial.println(this->size);
     this->setHSLRange(h, s, l, 0, this->size);
   }
   else if (cmd == CMD_SETRGB) {
@@ -95,6 +118,8 @@ void Strip::cmd(String cmd, String payload) {
 
     this->fillRGB(r, g, b);
   }
+
+  this->stateHandler(this->getState());
 }
 
 void Strip::setMaxBrightness(byte b) {
@@ -137,19 +162,11 @@ void Strip::setRGBRange(byte r, byte g, byte b, int start, int end) {
   bus->Show();
 }
 
-void Strip::setHSLRange(int h, uint8_t s, uint8_t l, int start, int end) {
+void Strip::setHSLRange(byte h, byte s, byte l, int start, int end) {
   if (start < 0 || end > this->size)
     return;
 
-  // convert to Neopixel color format from 0.0f to 1.0f
-  float hue = h * 1.0f / 360.0f;
-  float sat = s * 1.0f / 100.0f;
-  // limit lighteness to 0.5f like is recommended in Neopixel DOC.
-  float light = l * 0.5f / 100.0f;
-
-  Serial.printf("setHsl: %.2f  %.2f  %.2f\n", hue, sat, light);
-
-  HslColor color = HslColor(hue, sat, light);
+  HslColor color = HslColor((float) REL_UNIT_BYTE * h, (float) REL_UNIT_BYTE * s, (float) REL_UNIT_BYTE * l);
   for (int i = start; i < end; i++) {
     bus->SetPixelColor(i, RgbColor(color));
   }

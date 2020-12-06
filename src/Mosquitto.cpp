@@ -3,7 +3,7 @@
 namespace Mosquitto {
   WiFiClient wcli;
   MQTTClient client;
-  void (*handler)(String topic, String payload);
+  Strip* strip;
 
   void handleMessage(String& topic, String& message) {
     Serial.println("Received on topic [" + topic + "] payload  [" + message + "]");
@@ -15,15 +15,16 @@ namespace Mosquitto {
     const char* cmd = doc["cmd"];
     const char* payload = doc["payload"];
 
-    handler(cmd, payload);
+    strip->cmd(cmd, payload);
   }
 
   void loop() {
     client.loop();
   }
 
-  bool init(void (*msgHandler)(String topic, String payload)) {
+  bool init(Strip* s) {
     byte attempts = 0;
+    strip = s;
 
     Serial.println("\n Connecting to broker " + String(Settings::broker));
     client.begin(Settings::broker, wcli);
@@ -42,8 +43,6 @@ namespace Mosquitto {
 
     Serial.println("Subcribed to topic " + String(Settings::topic));
 
-    handler = msgHandler;
-
     client.subscribe(Settings::topic);
     client.onMessage(handleMessage);
 
@@ -52,9 +51,24 @@ namespace Mosquitto {
   }
 
   void announce() {
-    // message size must remain small
     Serial.println("Announcing on " + String(Settings::announce_topic) + "   " + Settings::getAnnounceInfo());
     client.publish(Settings::announce_topic, Settings::getAnnounceInfo());
+    // updateState();
+  }
+
+  void updateState(t_state st) {
+    const size_t capacity = JSON_OBJECT_SIZE(5) + 120;
+    DynamicJsonDocument doc(capacity);
+    String buff;
+    doc["br"] = st.br;
+    doc["spd"] = st.spd;
+    doc["fx"] = st.fx;
+    doc["mode"] = st.mode;
+    doc["size"] = st.size;
+
+    serializeJson(doc, buff);
+    Serial.println("Sending state update " + buff);
+    client.publish(Settings::topic + String("/status"), buff);
   }
 
   bool connected() {

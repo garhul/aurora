@@ -1,14 +1,18 @@
+#ifndef __STRIP_H__
+#define __STRIP_H__
 #include <NeoPixelBus.h>
 
 #define TEST_DELAY 15
+
+//TODO :: change this to not need float conversion
 #define REL_UNIT_BYTE 0.0039f
-#define REL_UNIT_SIZE 1.0f /  STRIP_SIZE
+
 // #define BENCHMARK
 #define MAX_LENGTH 300 //TODO:: temporal solution for dinamic array implementation
 
 #define CMD_FX "fx"
 #define CMD_OFF "off"
-#define CMD_SETHSL "setHsl"
+#define CMD_SETHSL "set"
 #define CMD_SETRGB "setRgb"
 #define CMD_PLAY "play"
 #define CMD_PAUSE "pause"
@@ -29,6 +33,14 @@ typedef struct {
   byte sat;
   byte br;
 }  leds;
+
+typedef struct {
+  uint8 spd;
+  uint8 br;
+  uint8 mode;
+  uint16 size;
+  uint8 fx;
+} t_state;
 
 enum MODES {
   OFF,
@@ -55,7 +67,7 @@ public:
   Strip(uint16 length);
   void test();
   void setRGBRange(byte r, byte g, byte b, int start, int end);
-  void setHSLRange(int h, uint8_t s, uint8_t l, int start, int end);
+  void setHSLRange(byte h, byte s, byte l, int start, int end);
   void clear();
 
   void fillRGB(uint8_t r, uint8_t g, uint8_t b);
@@ -63,8 +75,10 @@ public:
   void setMaxBrightness(byte b);
   void resetFrameCount();
   void nextFrame(char index); //shows next frame if in animation mode
-  void cmd(String cmd, String payload);
+  void cmd(String, String);
   void loop();
+  void setStateHandler(void (*fn)(t_state));
+  t_state getState();
 
 private:
 
@@ -74,13 +88,13 @@ private:
   // NeoPixelBus<NeoGrbFeature, Neo800KbpsMethod>* bus;
   // NeoPixelBus<NeoGrbFeature, NeoEsp8266AsyncUart0800KbpsMethod>* bus;
   NeoPixelBusType* bus;
-
-  byte _max_bright;
+  void (*stateHandler)(t_state);
+  uint8 _max_bright;
   uint16 size;
-  int frame_index;
-  char spd;
-  char fx;
-  byte mode;
+  uint16 frame_index;
+  uint8 spd;
+  uint8 fx;
+  uint8 mode;
   leds pixels[MAX_LENGTH];
   void randomize();
   void fx_aurora();
@@ -95,3 +109,4 @@ private:
   void fx_trip();
 };
 
+#endif

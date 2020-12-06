@@ -2,17 +2,19 @@
 
 namespace WebServer {
   ESP8266WebServer server(80);
-  void(*cmdHandler)(String cmd, String payload);
+  // void(*cmdHandler)(String cmd, String payload);
+  Strip* strip;
 
-  void init(void(*f)(String, String)) {
+  void init(Strip* s) {
     server.on("/setup", HTTP_POST, _setup);
     server.on("/cmd", HTTP_POST, _cmd);
     server.on("/clear", HTTP_POST, _clearCredentials); // endpoint for clearing ssid / pwd
     server.on("/info", HTTP_ANY, _info);
+    server.on("/state", HTTP_ANY, _getState);
     server.on("/", HTTP_ANY, _control);
     server.onNotFound(_info);
     server.begin();
-    cmdHandler = f;
+    strip = s;
   }
 
   void loop() {
@@ -38,7 +40,7 @@ namespace WebServer {
     }
 
     server.arg("cmd").toCharArray(cmd, 32);
-    cmdHandler(String(cmd), String(payload));
+    strip->cmd(String(cmd), String(payload));
     _respond(200, "ok");
   }
 
@@ -98,6 +100,21 @@ namespace WebServer {
     // read the file in chunks (not that much ram)
     server.streamFile(f, "text/html");
     f.close();
+  }
+
+  void _getState() {
+    const size_t capacity = JSON_OBJECT_SIZE(5) + 40;
+    DynamicJsonDocument doc(capacity);
+    String buff;
+    t_state st = strip->getState();
+    doc["br"] = st.br;
+    doc["spd"] = st.spd;
+    doc["fx"] = st.fx;
+    doc["mode"] = st.mode;
+    doc["size"] = st.size;
+
+    serializeJson(doc, buff);
+    server.send(200, "application/json", buff.c_str());
   }
 
   void _info() {
