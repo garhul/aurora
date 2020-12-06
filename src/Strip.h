@@ -12,8 +12,8 @@
 
 #define CMD_FX "fx"
 #define CMD_OFF "off"
-#define CMD_SETHSL "set"
-#define CMD_SETRGB "setRgb"
+#define CMD_SETHSL "setHSL"
+#define CMD_SETRGB "setRGB"
 #define CMD_PLAY "play"
 #define CMD_PAUSE "pause"
 #define CMD_TEST "test"
@@ -93,6 +93,7 @@ private:
   uint16 size;
   uint16 frame_index;
   uint8 spd;
+  uint8 spd_delay;
   uint8 fx;
   uint8 mode;
   leds pixels[MAX_LENGTH];

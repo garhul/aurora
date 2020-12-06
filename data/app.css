@@ -1,0 +1,21 @@
+body {
+  padding: 1em;
+  margin: 0px;
+  font-size: 14pt;
+  font-family: Helvetica;
+  background-color: #232324;
+  color: #a0a0a0;
+}
+
+h2 {
+  color:#eee;
+}
+
+.row {
+  margin-top:1em;
+  margin-bottom:1em;
+}
+
+.slider_box {
+  margin-top:1.2em;
+}

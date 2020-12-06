@@ -11,7 +11,8 @@ namespace WebServer {
     server.on("/clear", HTTP_POST, _clearCredentials); // endpoint for clearing ssid / pwd
     server.on("/info", HTTP_ANY, _info);
     server.on("/state", HTTP_ANY, _getState);
-    server.on("/", HTTP_ANY, _control);
+    // server.on("/", HTTP_ANY, _control);
+    server.serveStatic("/", LittleFS, "/");
     server.onNotFound(_info);
     server.begin();
     strip = s;
@@ -24,6 +25,25 @@ namespace WebServer {
   void _respond(int code, const char* message) {
     String msg = "{\"msg\":\"" + String(message) + "\"}";
     server.send(code, "application/json", msg.c_str());
+  }
+
+  void _serveFile(const char* filepath, const char* doctype = "text/html") {
+    if (!LittleFS.exists(filepath)) {
+      _respond(404, "File not found");
+      Serial.println("file not found");
+      Serial.println(filepath);
+      return;
+    }
+
+    File f = LittleFS.open(filepath, "r");
+    if (!f) {
+      _respond(500, "Error opening file");
+      return;
+    }
+
+    //read the file in chunks (not that much ram)
+    server.streamFile(f, doctype);
+    f.close();
   }
 
   void _cmd() {
@@ -41,7 +61,7 @@ namespace WebServer {
 
     server.arg("cmd").toCharArray(cmd, 32);
     strip->cmd(String(cmd), String(payload));
-    _respond(200, "ok");
+    _getState();
   }
 
   void _setup() {
@@ -86,20 +106,7 @@ namespace WebServer {
   } // namespace WebServer
 
   void _control() {
-    if (!LittleFS.exists("/index.html")) {
-      _respond(404, "File not found");
-      return;
-    }
-
-    File f = LittleFS.open("/index.html", "r");
-    if (!f) {
-      _respond(500, "Error opening file");
-      return;
-    }
-
-    // read the file in chunks (not that much ram)
-    server.streamFile(f, "text/html");
-    f.close();
+    _serveFile("/index.html");
   }
 
   void _getState() {
