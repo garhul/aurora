@@ -53,7 +53,6 @@ namespace Mosquitto {
   void announce() {
     Serial.println("Announcing on " + String(Settings::announce_topic) + "   " + Settings::getAnnounceInfo());
     client.publish(Settings::announce_topic, Settings::getAnnounceInfo());
-    // updateState();
   }
 
   void updateState(t_state st) {

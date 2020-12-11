@@ -127,6 +127,7 @@ void Strip::cmd(String cmd, String payload) {
 void Strip::setMaxBrightness(byte b) {
   _max_bright = b;
 }
+
 //cycle each led to test connections
 void Strip::test() {
   bus->ClearTo(RgbColor(0, 0, 0));
