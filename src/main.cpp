@@ -17,6 +17,7 @@ void onStripStateChange(t_state st) {
 void setup(void) {
   Serial.begin(115200);
   Settings::init();
+  strip = new Strip(Settings::strip_size);
   digitalWrite(2, HIGH); // turn off device led
 
   Network::init();
@@ -25,9 +26,8 @@ void setup(void) {
       Mosquitto::announce();
     };
   }
-  strip = new Strip(Settings::strip_size);
-  strip->setStateHandler(onStripStateChange);
 
+  strip->setStateHandler(onStripStateChange);
   WebServer::init(strip);
   strip->test();
 }
