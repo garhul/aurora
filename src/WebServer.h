@@ -11,11 +11,11 @@ namespace WebServer {
   void loop();
 
   void _cmd();
-  void _control();
   void _info();
   void _setup();
   void _clearCredentials();
   void _getState();
+  void _FORBIDDEN();
   void _serveFile(const char* filepath, const char* doctype);
 }
 
