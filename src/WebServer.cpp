@@ -2,7 +2,6 @@
 
 namespace WebServer {
   ESP8266WebServer server(80);
-  // void(*cmdHandler)(String cmd, String payload);
   Strip* strip;
 
   void init(Strip* s) {
@@ -11,7 +10,7 @@ namespace WebServer {
     server.on("/clear", HTTP_POST, _clearCredentials); // endpoint for clearing ssid / pwd
     server.on("/info", HTTP_ANY, _info);
     server.on("/state", HTTP_ANY, _getState);
-    // server.on("/", HTTP_ANY, _control);
+    server.on(SETTINGS_FILE, HTTP_ANY, _FORBIDDEN);
     server.serveStatic("/", LittleFS, "/");
     server.onNotFound(_info);
     server.begin();
@@ -105,8 +104,8 @@ namespace WebServer {
     _respond(500, "Unable to store settings");
   } // namespace WebServer
 
-  void _control() {
-    _serveFile("/index.html");
+  void _FORBIDDEN() {
+    _respond(403, "Access Forbidden");
   }
 
   void _getState() {
