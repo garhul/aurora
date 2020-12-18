@@ -26,6 +26,7 @@ namespace Mosquitto {
     byte attempts = 0;
     strip = s;
 
+    client.setWill(Settings::announce_topic, Settings::getLastWillInfo().c_str());
     Serial.println("\n Connecting to broker " + String(Settings::broker));
     client.begin(Settings::broker, wcli);
 
@@ -56,9 +57,11 @@ namespace Mosquitto {
   }
 
   void updateState(t_state st) {
-    const size_t capacity = JSON_OBJECT_SIZE(5) + 120;
+    const size_t capacity = JSON_OBJECT_SIZE(7) + 200;
     DynamicJsonDocument doc(capacity);
     String buff;
+    doc["ev"] = "stateChange";
+    doc["id"] = Settings::getDeviceId();
     doc["br"] = st.br;
     doc["spd"] = st.spd;
     doc["fx"] = st.fx;
@@ -67,7 +70,7 @@ namespace Mosquitto {
 
     serializeJson(doc, buff);
     Serial.println("Sending state update " + buff);
-    client.publish(Settings::topic + String("/status"), buff);
+    client.publish(Settings::announce_topic, buff);
   }
 
   bool connected() {

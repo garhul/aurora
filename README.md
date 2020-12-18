@@ -30,7 +30,7 @@ pass: the network password (max 32 chars)
 ssid: the network ssid (max 32 chars)
 topic: the mqtt topic to listen for commands (max 32 chars)
 broker: the address of the mqtt broker (max 32 chars)
-announce_topic: the topic where to anounce once connected (max 32 chars)
+announce_topic: the topic where to anounce device changes (birth, will, state change) (max 32 chars)
 human_name: the human readable name of the device (max 32 chars)
 ap_ssid: the ssid of the access point mode (max 32 chars)
 strip_size: the length of the led strip to control
@@ -70,9 +70,11 @@ Upon receiving a command the device respond with an [state](#state) update
 ### <a name="state">device state</a>
 
 State is a representation of the current state of the device, if it's playing an animation, which one, its current brightness and speed settings.
-The state is published in the device's mosquitto topic suffixed with `/state` and it looks like this json:
+The state is published in the device's mosquitto `announce_topic` and it looks like this json:
 ```
 {
+    "id": "the device id",
+    "ev": "stateChange",
     "br": 25,
     "spd": 10,
     "fx": 255,

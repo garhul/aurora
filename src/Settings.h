@@ -32,6 +32,7 @@ namespace Settings {
   void load();
   String getInfoJson();
   String getAnnounceInfo();
+  String getLastWillInfo();
   String getDeviceId();
   String getCommands();
 } // namespace Settings
