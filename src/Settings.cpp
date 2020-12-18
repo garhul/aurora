@@ -119,7 +119,27 @@ namespace Settings {
   }
 
   String getAnnounceInfo() {
-    return getDeviceId() + "|" + WiFi.localIP().toString() + "|" + String(human_name);
+    const size_t capacity = JSON_OBJECT_SIZE(4) + 255;
+    DynamicJsonDocument doc(capacity);
+    String buff;
+
+    doc["ev"] = "birth";
+    doc["id"] = getDeviceId();
+    doc["ip"] = WiFi.localIP().toString();
+    serializeJson(doc, buff);
+    return buff;
+  }
+
+  String getLastWillInfo() {
+    const size_t capacity = JSON_OBJECT_SIZE(4) + 255;
+    DynamicJsonDocument doc(capacity);
+    String buff;
+
+    doc["ev"] = "death";
+    doc["id"] = getDeviceId();
+    doc["ip"] = WiFi.localIP().toString();
+    serializeJson(doc, buff);
+    return buff;
   }
 
   String getInfoJson() {

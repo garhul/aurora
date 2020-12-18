@@ -2,3 +2,4 @@
 .vscode
 versioning
 src/version.h
+data/settings
