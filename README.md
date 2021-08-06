@@ -88,3 +88,9 @@ where:
 - `fx` is the currently selected animation
 - `mode` determines if we're playing or paused or off (0: OFF, 1:  PAUSED, 2: PLAYING)
 - `size` is the currently configured length of our strip
+
+## Relarted Projects:
+
+- [rc-aurora](https://github.com/sfabrizio/rc-aurora) - Control Aurora devices from an RC control
+- [aurora-alexa](https://github.com/sfabrizio/aurora-alexa) - Control Aurora devices from Alexa
+- [aurora-mqtt-server](https://github.com/sfabrizio/aurora-mqtt-server) - Simple mqtt broker/pub/sub over nodeJS
