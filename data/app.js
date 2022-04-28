@@ -113,10 +113,24 @@ for (let b of btns) {
 
 // Attach behaviour to sliders
 let sl = document.getElementsByTagName("input");
+let sl_r = document.getElementById("sred");
+let sl_g = document.getElementById("sgreen");
+let sl_b = document.getElementById("sblue");
+let br = document.getElementById("br");
+
 for (let r of sl) {
   r.addEventListener("change", (ev) => {
     ev.preventDefault();
-    _send(r.attributes.cmd.value, r.value);
+    if (r.attributes.cmd.value === 'setRGB') {
+      let ratio = parseInt(br.value) / 255;
+      let slr = Math.floor(parseInt(sl_r.value) * ratio) ;
+      let slg = Math.floor(parseInt(sl_g.value) * ratio);
+      let slb = Math.floor(parseInt(sl_b.value) * ratio);
+
+      _send(r.attributes.cmd.value, `${slr} ${slg} ${slb}`);
+    } else {
+      _send(r.attributes.cmd.value, r.value);
+    }
   });
 }
 

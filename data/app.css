@@ -19,3 +19,19 @@ h2 {
 .slider_box {
   margin-top:1.2em;
 }
+
+#color_picker {
+  margin-top: 2em;
+}
+
+#color_picker > h2 {
+  text-align: left;
+}
+
+#color_picker > label {
+  display:inline;
+}
+
+#color_picker > input {
+  display:inline;
+}

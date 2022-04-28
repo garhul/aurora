@@ -40,7 +40,6 @@ void Strip::loop() {
   delay(15);
 }
 
-
 void Strip::setStateHandler(void(*fn)(t_state st)) {
   this->stateHandler = fn;
 }
@@ -61,6 +60,7 @@ t_state Strip::getState() {
  */
 void Strip::cmd(String cmd, String payload) {
   Serial.print(cmd);
+  Serial.print(" ");
   Serial.print(payload);
   Serial.println();
   if (cmd == CMD_OFF) {
@@ -182,7 +182,7 @@ void Strip::clear() {
   bus->Show();
 }
 
-void  Strip::randomize() {
+void Strip::randomize() {
   byte px = 0;
   for (px = 0; px < this->size; px++) {
     pixels[px].hue = byte(random(255));
@@ -299,7 +299,6 @@ void Strip::fx_trip() {
     pixels[this->size - 1].br = tmp.br;
   }
 }
-
 // simple hue transition
 void Strip::fx_rainbow() {
   static byte hue_inc = 0;
