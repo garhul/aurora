@@ -1,9 +1,9 @@
 #ifndef __WEB_SERVER_H__
 #define __WEB_SERVER_H__
 
-#include <Settings.h>
 #include <ESP8266WebServer.h>
 #include <FS.h>
+#include <Settings.h>
 #include <Strip.h>
 
 namespace WebServer {
@@ -15,8 +15,9 @@ namespace WebServer {
   void _setup();
   void _clearCredentials();
   void _getState();
+  void _restart();
   void _FORBIDDEN();
   void _serveFile(const char* filepath, const char* doctype);
-}
+} // namespace WebServer
 
 #endif

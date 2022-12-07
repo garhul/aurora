@@ -1,13 +1,11 @@
 #ifndef _SETTINGS_H_
 #define _SETTINGS_H_
 
-#define SETTINGS_FILE "/settings"
+#define SETTINGS_FILE      "/settings"
 #define DEFAULT_HUMAN_NAME "Aurora"
-#define AP_USE_PWD false
-#define AP_PWD "1234"
+#define AP_USE_PWD         false
+#define AP_PWD             "1234"
 #define DEFAULT_STRIP_SIZE 1
-
-#define WIFI_CHECK_PERIOD 600000 // Check wifi connection evert 60 seconds
 
 #include <Arduino.h>
 #include <ArduinoJson.h>

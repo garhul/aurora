@@ -1,4 +1,5 @@
 #include <Network.h>
+#define WIFI_CHECK_PERIOD 180 * 1000 // Check every 3 minutes 180 000 mSec
 
 namespace Network {
   byte mode;
@@ -9,8 +10,7 @@ namespace Network {
 
     if (beginST()) {
       mode = MODES::ST;
-    }
-    else {
+    } else {
       mode = MODES::AP;
       beginAP();
     }
@@ -37,7 +37,7 @@ namespace Network {
     int attempts = 0;
 
     WiFi.mode(WIFI_STA);
-    WiFi.disconnect(true); //remove any old wifi config
+    WiFi.disconnect(true); // remove any old wifi config
 
     if (WiFi.status() == WL_CONNECTED) {
       WiFi.disconnect(false);
@@ -50,7 +50,7 @@ namespace Network {
       delay(ST_CONN_TIMEOUT);
     }
 
-    //are we connected yet ?
+    // are we connected yet ?
     if (WiFi.status() != WL_CONNECTED)
       return false;
 
@@ -63,11 +63,19 @@ namespace Network {
 
   /**
    * checks the connection is still alive, if not resets the device
-  */
+   */
   void checkAlive() {
+    static unsigned long check_due = 0;
+    unsigned long t = millis();
+
+    if (t > check_due)
+      return;
+
+    check_due = t + WIFI_CHECK_PERIOD;
+
     if (mode == MODES::ST && !WiFi.isConnected()) {
       Serial.println("Wifi disconnected, attempting to reconnect");
-      init();
+      beginST();
     }
   }
-}
+} // namespace Network

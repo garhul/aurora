@@ -4,35 +4,35 @@
 
 #define TEST_DELAY 15
 
-//TODO :: change this to not need float conversion
+// TODO :: change this to not need float conversion
 #define REL_UNIT_BYTE 0.0039f
 
 // #define BENCHMARK
-#define MAX_LENGTH 300 //TODO:: temporal solution for dinamic array implementation
+#define MAX_LENGTH 300 // TODO:: temporal solution for dinamic array implementation
 
-#define CMD_FX "fx"
-#define CMD_OFF "off"
+#define CMD_FX     "fx"
+#define CMD_OFF    "off"
 #define CMD_SETHSL "setHSL"
 #define CMD_SETRGB "setRGB"
-#define CMD_PLAY "play"
-#define CMD_PAUSE "pause"
-#define CMD_TEST "test"
-#define CMD_BR "br"
-#define CMD_SPEED "spd"
+#define CMD_PLAY   "play"
+#define CMD_PAUSE  "pause"
+#define CMD_TEST   "test"
+#define CMD_BR     "br"
+#define CMD_SPEED  "spd"
 
 // #define WEMOS_D1
 
 #ifdef WEMOS_D1
 typedef NeoPixelBus<NeoGrbFeature, NeoEsp8266AsyncUart1800KbpsMethod> NeoPixelBusType; // USES D4
 #else
-typedef NeoPixelBus<NeoGrbFeature, NeoEsp8266Dma800KbpsMethod> NeoPixelBusType;   // USES RX pin in nodemcu
+typedef NeoPixelBus<NeoGrbFeature, NeoEsp8266Dma800KbpsMethod> NeoPixelBusType; // USES RX pin in nodemcu
 #endif
 
 typedef struct {
   byte hue;
   byte sat;
   byte br;
-}  leds;
+} leds;
 
 typedef struct {
   uint8 spd;
@@ -63,7 +63,7 @@ enum FX {
 };
 
 class Strip {
-public:
+  public:
   Strip(uint16 length);
   void test();
   void setRGBRange(byte r, byte g, byte b, int start, int end);
@@ -74,14 +74,13 @@ public:
   void fillHSL(uint8_t h, uint8_t s, uint8_t l);
   void setMaxBrightness(byte b);
   void resetFrameCount();
-  void nextFrame(char index); //shows next frame if in animation mode
+  void nextFrame(char index); // shows next frame if in animation mode
   void cmd(String, String);
   void loop();
   void setStateHandler(void (*fn)(t_state));
   t_state getState();
 
-private:
-
+  private:
   // NeoPixelBus<NeoGrbFeature, NeoEsp8266Dma400KbpsMethod>* bus;
   // NeoPixelBus<NeoGrbFeature, NeoEsp8266DmaWs2812xMethod>* bus;
   // NeoPixelBus<NeoGrbFeature, Neo800KbpsMethod>* bus;

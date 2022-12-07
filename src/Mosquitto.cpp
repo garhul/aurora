@@ -76,4 +76,4 @@ namespace Mosquitto {
   bool connected() {
     return client.connected();
   }
-}
+} // namespace Mosquitto

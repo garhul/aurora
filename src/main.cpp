@@ -21,6 +21,7 @@ void setup(void) {
   digitalWrite(2, HIGH); // turn off device led
 
   Network::init();
+
   if (Network::getMode() == Network::MODES::ST) {
     if (Settings::use_mqtt && Mosquitto::init(strip)) {
       Mosquitto::announce();
@@ -33,19 +34,13 @@ void setup(void) {
 }
 
 void loop(void) {
-  static unsigned long lastCheck = 0;
   yield();
+  Network::checkAlive();
 
-  if (millis() - lastCheck > WIFI_CHECK_PERIOD) {
-    Network::checkAlive();
-    lastCheck = millis();
-  }
-
-  if (Settings::use_mqtt) {
+  if ((Network::getMode() == Network::MODES::ST) && Settings::use_mqtt) {
     if (Mosquitto::connected()) {
       Mosquitto::loop();
-    }
-    else {
+    } else {
       Mosquitto::init(strip);
     }
   }

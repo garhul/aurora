@@ -26,13 +26,13 @@ namespace WebServer {
     String msg = "{\"msg\":\"" + String(message) + "\"}";
     server.send(code, "application/json", msg.c_str());
   }
-  
+
   void _restart() {
     _respond(200, "Booting now");
     delay(2000);
     ESP.restart();
   }
-  
+
   void _serveFile(const char* filepath, const char* doctype = "text/html") {
     if (!LittleFS.exists(filepath)) {
       _respond(404, "File not found");
@@ -47,7 +47,7 @@ namespace WebServer {
       return;
     }
 
-    //read the file in chunks (not that much ram)
+    // read the file in chunks (not that much ram)
     server.streamFile(f, doctype);
     f.close();
   }
@@ -73,16 +73,15 @@ namespace WebServer {
   void _setup() {
     // check post params exist
     String requiredArgs[9] = {
-      "pass",
-      "ssid",
-      "topic",
-      "broker",
-      "announce_topic",
-      "human_name",
-      "ap_ssid",
-      "strip_size",
-      "use_mqtt"
-    };
+        "pass",
+        "ssid",
+        "topic",
+        "broker",
+        "announce_topic",
+        "human_name",
+        "ap_ssid",
+        "strip_size",
+        "use_mqtt"};
 
     for (byte i = 0; i < 9; i++) {
       if (!server.hasArg(requiredArgs[i])) {

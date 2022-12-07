@@ -3,16 +3,17 @@
 
 #include <ESP8266WiFi.h>
 #include <Hash.h>
-#include <WiFiClient.h>
 #include <Settings.h>
-
+#include <WiFiClient.h>
 
 #define ST_CONN_TIMEOUT 10000
-#define ST_RETRIES 3
+#define ST_RETRIES      3
 
 namespace Network {
   // WiFiClient net; Don't think I need it
-  enum MODES { AP, ST, DISCONNECTED };
+  enum MODES { AP,
+               ST,
+               DISCONNECTED };
   byte getMode();
   void beginAP();
   bool beginST();
