@@ -1,0 +1,21 @@
+UseTab: Never
+IndentWidth: 2
+BreakBeforeBraces: Custom
+BraceWrapping:
+  AfterClass: false
+  AfterCaseLabel: false
+  AfterEnum: false
+  AfterFunction: false
+  AfterNamespace: false
+  AfterStruct: false
+  AfterExternBlock: false  
+  BeforeCatch: false
+  BeforeElse: false
+
+AlignConsecutiveMacros: AcrossEmptyLines
+AllowShortIfStatementsOnASingleLine: false
+IndentCaseLabels: true
+ColumnLimit: 0
+NamespaceIndentation: All
+AccessModifierOffset: -4
+PointerAlignment: Left
