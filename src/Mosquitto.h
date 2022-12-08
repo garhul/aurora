@@ -6,7 +6,9 @@
 #include <Settings.h>
 #include <Strip.h>
 #include <WiFiClient.h>
-#define CONN_RETRIES 3
+#define MQTT_RECONNECT_COOLDOWN 120 * 1000 // If connection to mqtt is lost attempt reconnect maximum once in 2 minutes
+
+#define CONN_RETRIES            3
 
 namespace Mosquitto {
   bool init(Strip* s);

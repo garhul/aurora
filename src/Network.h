@@ -6,8 +6,9 @@
 #include <Settings.h>
 #include <WiFiClient.h>
 
-#define ST_CONN_TIMEOUT 10000
-#define ST_RETRIES      3
+#define ST_CONN_TIMEOUT   10000
+#define ST_RETRIES        3
+#define WIFI_CHECK_PERIOD 180 * 1000 // Check every 3 minutes 180 000 mSec
 
 namespace Network {
   // WiFiClient net; Don't think I need it

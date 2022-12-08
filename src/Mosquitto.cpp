@@ -19,7 +19,16 @@ namespace Mosquitto {
   }
 
   void loop() {
-    client.loop();
+    static unsigned long retry_t = 0;
+    unsigned long t = millis();
+
+    if (client.connected()) {
+      client.loop();
+      retry_t = 0;
+    } else if (t > retry_t) {
+      retry_t = t + MQTT_RECONNECT_COOLDOWN;
+      init(strip);
+    }
   }
 
   bool init(Strip* s) {
@@ -40,14 +49,14 @@ namespace Mosquitto {
       Serial.println("Unable to connect to broker");
       return false;
     }
+
     Mosquitto::loop();
 
     Serial.println("Subcribed to topic " + String(Settings::topic));
-
     client.subscribe(Settings::topic);
     client.onMessage(handleMessage);
-
-    delay(500);
+    delay(100);
+    announce();
     return true;
   }
 
@@ -76,4 +85,5 @@ namespace Mosquitto {
   bool connected() {
     return client.connected();
   }
+
 } // namespace Mosquitto

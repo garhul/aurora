@@ -22,10 +22,8 @@ void setup(void) {
 
   Network::init();
 
-  if (Network::getMode() == Network::MODES::ST) {
-    if (Settings::use_mqtt && Mosquitto::init(strip)) {
-      Mosquitto::announce();
-    };
+  if (Network::getMode() == Network::MODES::ST && Settings::use_mqtt) {
+    Mosquitto::init(strip);
   }
 
   strip->setStateHandler(onStripStateChange);
@@ -38,11 +36,7 @@ void loop(void) {
   Network::checkAlive();
 
   if ((Network::getMode() == Network::MODES::ST) && Settings::use_mqtt) {
-    if (Mosquitto::connected()) {
-      Mosquitto::loop();
-    } else {
-      Mosquitto::init(strip);
-    }
+    Mosquitto::loop();
   }
 
   WebServer::loop();

@@ -1,5 +1,4 @@
 #include <Network.h>
-#define WIFI_CHECK_PERIOD 180 * 1000 // Check every 3 minutes 180 000 mSec
 
 namespace Network {
   byte mode;
@@ -68,7 +67,7 @@ namespace Network {
     static unsigned long check_due = 0;
     unsigned long t = millis();
 
-    if (t > check_due)
+    if (t < check_due)
       return;
 
     check_due = t + WIFI_CHECK_PERIOD;
