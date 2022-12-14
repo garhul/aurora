@@ -421,21 +421,55 @@ void Strip::fx_white_aurora() {
   }
 }
 
-// pulsate flag
+// oscilate brightness up and down within 50% of maximum range, (if max bright is 50 go from 40 to 50 and back)
 void Strip::fx_albiCeleste() {
+  static byte dir = 1;
+  static uint8 br = 0;
+  uint8 c = br / 3;
+  uint8 upper_limit = _max_bright;
+  uint8 lower_limit = ceil(_max_bright * .5);
+  uint8 inc = ceil((upper_limit) / 24);
+
+  if (frame_index == 0) {
+    br = lower_limit;
+  }
+
+  if (frame_index % this->spd_delay == 0) {
+    if (br > upper_limit) {
+      br = upper_limit;
+    } else if (br < lower_limit) {
+      br = lower_limit;
+    }
+
+    if (br == upper_limit) {
+      dir = -1;
+    } else if (br == lower_limit) {
+      dir = 1;
+    }
+
+    br += (inc * dir);
+    c = br / 3;
+
+    // Serial.print(frame_index);
+    // Serial.print("    inc: " + String(inc));
+    // Serial.print("    br: " + String(br));
+    // Serial.print("    ll: " + String(lower_limit));
+    // Serial.println("    ul: " + String(upper_limit));
+  }
+
   for (unsigned int n = 0; n < this->size; n++) {
     if (n < this->size / 3) {
-      pixels[n].a = _max_bright / 5;
-      pixels[n].b = _max_bright / 5;
-      pixels[n].c = _max_bright;
+      pixels[n].a = c;
+      pixels[n].b = c;
+      pixels[n].c = br;
     } else if (n < ((this->size / 3) * 2)) {
-      pixels[n].a = _max_bright;
-      pixels[n].b = _max_bright;
-      pixels[n].c = _max_bright;
+      pixels[n].a = br;
+      pixels[n].b = br;
+      pixels[n].c = br;
     } else {
-      pixels[n].a = _max_bright / 5;
-      pixels[n].b = _max_bright / 5;
-      pixels[n].c = _max_bright;
+      pixels[n].a = c;
+      pixels[n].b = c;
+      pixels[n].c = br;
     }
   }
 }
