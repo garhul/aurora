@@ -2,7 +2,8 @@
 #define __STRIP_H__
 #include <NeoPixelBus.h>
 
-#define TEST_DELAY 15
+#define TEST_DELAY       15
+#define TARGET_FRAMERATE 48 // 48 fps target rate-> one every 20 ms
 
 // TODO :: change this to not need float conversion
 #define REL_UNIT_BYTE 0.0039f
@@ -20,7 +21,7 @@
 #define CMD_BR     "br"
 #define CMD_SPEED  "spd"
 
-// #define WEMOS_D1
+#define WEMOS_D1
 
 #ifdef WEMOS_D1
 typedef NeoPixelBus<NeoGrbFeature, NeoEsp8266AsyncUart1800KbpsMethod> NeoPixelBusType; // USES D4
@@ -29,9 +30,9 @@ typedef NeoPixelBus<NeoGrbFeature, NeoEsp8266Dma800KbpsMethod> NeoPixelBusType; 
 #endif
 
 typedef struct {
-  byte hue;
-  byte sat;
-  byte br;
+  byte a;
+  byte b;
+  byte c;
 } leds;
 
 typedef struct {
@@ -48,6 +49,11 @@ enum MODES {
   PLAYING
 };
 
+enum COLORSPACE {
+  HSB,
+  RGB
+};
+
 enum FX {
   NONE,
   RAINBOW,
@@ -59,6 +65,7 @@ enum FX {
   WHITE_AURORA,
   WHITE_CHASER,
   TRIP,
+  ALBI,
   COUNT,
 };
 
@@ -95,6 +102,7 @@ class Strip {
   uint8 spd_delay;
   uint8 fx;
   uint8 mode;
+  uint8 colorspace;
   leds pixels[MAX_LENGTH];
   void randomize();
   void fx_aurora();
@@ -107,6 +115,7 @@ class Strip {
   void fx_white_aurora();
   void fx_white_chaser();
   void fx_trip();
+  void fx_albiCeleste();
 };
 
 #endif
